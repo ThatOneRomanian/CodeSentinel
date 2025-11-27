@@ -52,3 +52,9 @@ It is optional, but recommended to be updated as the project evolves.
 * **Test Fixtures**: Use consistent test data and fixtures for reproducible tests
 * **Performance Testing**: Benchmark scanning performance with large codebases
 * **Security Testing**: Include tests for security vulnerabilities in the scanner itself
+
+## Process Patterns
+
+* **Private Git Repository**: Using private Git repository for development with proper .gitignore for Python + VS Code
+* **Memory-Bank Driven Development**: Using memory-bank pattern for persistent project context and decision tracking
+* **Private Development Workflow**: Internal development only, with proprietary licensing during development phase

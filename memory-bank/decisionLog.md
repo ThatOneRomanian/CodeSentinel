@@ -59,3 +59,21 @@ Adopt the standardized project structure as defined in phase1-spec.md for Phase 
 * Validated structure against phase1-spec.md requirements
 
 2025-11-27 01:44:00 - Phase 1 project skeleton completed and validated.
+
+## Decision
+
+CodeSentinel is currently proprietary, developed privately, and future pricing/licensing will be determined later.
+
+## Rationale
+
+* Project is in early development phase
+* Business model for potential public release is undecided
+* Maintains flexibility for future licensing decisions
+* Aligns with private development status
+
+## Implementation Details
+
+* Updated README.md to remove "free to use" messaging
+* Changed license statement to proprietary
+* Updated productContext.md to reflect undecided future licensing
+* Removed references to public distribution channels
