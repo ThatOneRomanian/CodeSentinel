@@ -1,10 +1,13 @@
 """
 Reporting module for CodeSentinel.
 
-Provides output formatting and reporting capabilities for security scan results.
+Contains report generation components for security scan results.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-from .markdown import MarkdownReporter
-from .json_report import JSONReporter
+from sentinel.reporting.json_report import generate_json_report
+from sentinel.reporting.markdown import generate_markdown_report
 
-__all__ = ["MarkdownReporter", "JSONReporter"]
+__all__ = ["generate_json_report", "generate_markdown_report"]

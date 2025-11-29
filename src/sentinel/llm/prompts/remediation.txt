@@ -1,0 +1,16 @@
+Provide specific remediation guidance for the following security finding:
+
+Rule: {{rule_id}}
+Severity: {{severity}}
+File: {{file_path}}
+Line: {{line}}
+Excerpt: {{excerpt}}
+Language: {{language}}
+
+Provide:
+1. Step-by-step instructions to fix the issue
+2. Code examples or configuration changes (if applicable)
+3. Best practices to prevent recurrence
+4. Alternative secure approaches
+
+Focus on actionable, practical advice that developers can implement immediately.

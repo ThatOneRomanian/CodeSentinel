@@ -1,95 +1,180 @@
 """
-Configuration vulnerability rules for CodeSentinel.
+Configuration rule implementations for CodeSentinel.
 
-Provides rules for detecting insecure configurations in various configuration files.
+Detects hardcoded configuration values, API keys, and other sensitive configuration
+patterns according to the Phase 1 specification.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-import re
-from typing import List
 import pathlib
+import re
+from typing import List, Dict
 
-from .base import Rule, Finding, Severity
+from sentinel.rules.base import Finding, RuleMeta, create_default_rule_meta
 
 
-class ConfigRules(Rule):
+# TODO: Phase 2 - Add CWE mapping for hardcoded API keys (CWE-798)
+# TODO: Phase 2 - Add remediation guidance for environment variables/secrets management
+# TODO: Phase 2 - Add tags: ['credentials', 'api-keys', 'secrets-management']
+# TODO: Phase 2 - Integrate with language detection for context-aware reporting
+class HardcodedAPIRule:
     """
-    Collection of rules for detecting insecure configurations.
-
-    Detects:
-    - DEBUG=True (Flask/Django)
-    - Bind to 0.0.0.0
-    - Weak crypto (md5, sha1)
-    - Default credentials
-    - Missing environment variable usage
-    - Unsecured TLS flags
-    - Insecure config literals
+    Rule to detect hardcoded API keys and tokens in source code.
     """
+
+    id = "hardcoded-api-key"
+    description = "Hardcoded API key or token detected"
+    severity = "high"
+    meta = create_default_rule_meta(
+        category="secrets",
+        cwe_ids=["CWE-798"],
+        risk_factors=["hardcoded", "credentials", "api-key"],
+        detection_method="regex",
+        false_positive_rate=0.1,
+        remediation_priority="high",
+        tags=["credentials", "api-keys", "secrets-management"],
+        references=["https://cwe.mitre.org/data/definitions/798.html"],
+        language_specificity="low",
+        ai_explanation_priority="high"
+    )
+
+    # Common API key patterns
+    API_KEY_PATTERNS = {
+        "api_key_assignment": r'api[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "secret_key_assignment": r'secret[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "token_assignment": r'token\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "password_assignment": r'password\s*[=:]\s*["\']([^"\']{8,})["\']',
+        "stripe_secret_key": r'["\'](sk_(live|test)_[a-zA-Z0-9]{20,})["\']',
+        "stripe_restricted_key": r'["\'](rk_(live|test)_[a-zA-Z0-9]{20,})["\']',
+        "aws_access_key": r'["\'](AKIA[0-9A-Z]{16})["\']',
+        "github_token": r'["\'](gh[ops]_[a-zA-Z0-9]{36})["\']',
+        "slack_token": r'["\'](xox[pbar]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})["\']',
+    }
 
     def __init__(self):
-        """Initialize configuration vulnerability rules."""
-        super().__init__()
-        self.rule_id = "ConfigRules"
-        self.description = "Detects insecure configurations in code and config files"
-        self.severity = Severity.MEDIUM
+        """Initialize the rule with compiled patterns."""
+        import sentinel.utils.patterns as patterns_module
+        self.compiled_patterns = patterns_module.compile_patterns(self.API_KEY_PATTERNS)
 
-        # Placeholder patterns - will be implemented in Phase 1
-        self.patterns = {
-            "DEBUG_ENABLED": r"DEBUG\s*=\s*True",
-            "BIND_ALL_INTERFACES": r"0\.0\.0\.0",
-            "WEAK_CRYPTO": r"(md5|sha1)",
-            "DEFAULT_CREDENTIALS": r"(admin:admin|root:root|user:user)",
-            "HARDCODED_SECRETS": r"(secret|password|key)\s*=\s*['\"][^'\"]+['\"]",
-        }
-
-    def scan(self, file_path: pathlib.Path, content: str) -> List[Finding]:
+    def apply(self, path: pathlib.Path, text: str) -> List[Finding]:
         """
-        Scan file content for insecure configurations.
+        Apply hardcoded API key detection to file content.
 
         Args:
-            file_path: Path to the file being scanned
-            content: Content of the file as string
+            path: Path to the file being analyzed
+            text: Content of the file as string
 
         Returns:
-            List of Finding objects for detected configuration issues
+            List of Finding objects for detected API keys
         """
-        findings = []
+        findings: List[Finding] = []
+        lines = text.split('\n')
 
-        # Placeholder implementation - will be enhanced in Phase 1
-        # This will include context-aware pattern matching and file type detection
+        for line_num, line in enumerate(lines, 1):
+            import sentinel.utils.patterns as patterns_module
+            matches = patterns_module.match_patterns(line, self.compiled_patterns)
+
+            # Only create one finding per line, even if multiple patterns match
+            if matches:
+                # Create excerpt (truncate if too long)
+                excerpt = line.strip()
+                if len(excerpt) > 100:
+                    excerpt = excerpt[:97] + "..."
+
+                finding = Finding(
+                    rule_id=self.id,
+                    file_path=path,
+                    line=line_num,
+                    severity=self.severity,
+                    excerpt=excerpt,
+                    confidence=0.8  # High confidence for pattern matches
+                )
+                findings.append(finding)
 
         return findings
 
-    def _detect_debug_enabled(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect DEBUG=True in Flask/Django applications."""
-        # Placeholder - will be implemented in Phase 1
-        return []
 
-    def _detect_bind_all_interfaces(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect binding to 0.0.0.0 (all interfaces)."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+# TODO: Phase 2 - Add CWE mapping for hardcoded database credentials (CWE-798)
+# TODO: Phase 2 - Add remediation guidance for secure credential storage
+# TODO: Phase 2 - Add tags: ['database', 'credentials', 'connection-strings']
+# TODO: Phase 2 - Integrate with language detection for context-aware reporting
+class HardcodedDatabaseRule:
+    """
+    Rule to detect hardcoded database credentials and connection strings.
+    """
 
-    def _detect_weak_crypto(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect weak cryptographic algorithms (md5, sha1)."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+    id = "hardcoded-database"
+    description = "Hardcoded database credentials detected"
+    severity = "high"
+    meta = create_default_rule_meta(
+        category="secrets",
+        cwe_ids=["CWE-798"],
+        risk_factors=["hardcoded", "credentials", "database"],
+        detection_method="regex",
+        false_positive_rate=0.05,
+        remediation_priority="high",
+        tags=["database", "credentials", "connection-strings"],
+        references=["https://cwe.mitre.org/data/definitions/798.html"],
+        language_specificity="low",
+        ai_explanation_priority="high"
+    )
 
-    def _detect_default_credentials(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect default or hardcoded credentials."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+    # Database connection patterns
+    DATABASE_PATTERNS = {
+        "postgres_connection": r'postgres(ql)?://[^:]+:[^@]+@[^"\'\s]+',
+        "mysql_connection": r'mysql://[^:]+:[^@]+@[^"\'\s]+',
+        "mongodb_connection": r'mongodb(\+srv)?://[^:]+:[^@]+@[^"\'\s]+',
+        "redis_connection": r'redis://[^:]+:[^@]+@[^"\'\s]+',
+        "database_credential_block": r'host\s*[=:]\s*["\'][^"\']+["\']\s*,\s*port\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(user|username)\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(password|pass)\s*[=:]\s*["\'][^"\']+["\']',
+    }
 
-    def _detect_missing_env_vars(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect missing environment variable usage for secrets."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+    def __init__(self):
+        """Initialize the rule with compiled patterns."""
+        import sentinel.utils.patterns as patterns_module
+        self.compiled_patterns = patterns_module.compile_patterns(self.DATABASE_PATTERNS)
 
-    def _detect_unsecured_tls(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect unsecured TLS/SSL configurations."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+    def apply(self, path: pathlib.Path, text: str) -> List[Finding]:
+        """
+        Apply hardcoded database credential detection to file content.
 
-    def _detect_insecure_config_literals(self, content: str, file_path: pathlib.Path) -> List[Finding]:
-        """Detect insecure configuration literals."""
-        # Placeholder - will be implemented in Phase 1
-        return []
+        Args:
+            path: Path to the file being analyzed
+            text: Content of the file as string
+
+        Returns:
+            List of Finding objects for detected database credentials
+        """
+        findings: List[Finding] = []
+        lines = text.split('\n')
+
+        for line_num, line in enumerate(lines, 1):
+            import sentinel.utils.patterns as patterns_module
+            matches = patterns_module.match_patterns(line, self.compiled_patterns)
+
+            # Only create one finding per line, even if multiple patterns match
+            if matches:
+                # Create excerpt (truncate if too long)
+                excerpt = line.strip()
+                if len(excerpt) > 100:
+                    excerpt = excerpt[:97] + "..."
+
+                finding = Finding(
+                    rule_id=self.id,
+                    file_path=path,
+                    line=line_num,
+                    severity=self.severity,
+                    excerpt=excerpt,
+                    confidence=0.9  # Very high confidence for connection strings
+                )
+                findings.append(finding)
+
+        return findings
+
+
+# Export consolidated rules list for dynamic loading
+rules = [
+    HardcodedAPIRule(),
+    HardcodedDatabaseRule(),
+]

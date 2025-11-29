@@ -1,0 +1,16 @@
+Map the following security finding to the most relevant Common Weakness Enumeration (CWE) identifier:
+
+Rule: {{rule_id}}
+Severity: {{severity}}
+File: {{file_path}}
+Line: {{line}}
+Excerpt: {{excerpt}}
+Language: {{language}}
+
+Provide:
+1. The most relevant CWE ID (e.g., CWE-798)
+2. The CWE name
+3. A brief description of how this finding relates to the CWE
+4. Any supporting references or links
+
+If multiple CWEs are relevant, choose the most specific and appropriate one.

@@ -1,0 +1,36 @@
+# Sample YAML configuration with intentional security issues
+# © 2025 Andrei Antonescu. All rights reserved.
+# Proprietary – not licensed for public redistribution.
+
+database:
+  host: "localhost"
+  port: 5432
+  username: "yaml_user"
+  password: "yaml_password_789"
+  database: "yaml_app_db"
+
+api:
+  stripe:
+    secret_key: "sk_test_7777777777abcdefghijklmnop"
+    publishable_key: "pk_test_7777777777abcdefghijklmnop"
+  aws:
+    access_key_id: "AKIA7777777777EXAMPLE"
+    secret_access_key: "wJalrXUtnFEMI/K7MDENG/bPxRfiCY7777777777"
+  github:
+    token: "ghp_7777777777abcdefghijklmnopqrstuvwxyz"
+
+services:
+  mongodb: "mongodb://user:mongopass777@localhost:27017/app"
+  redis: "redis://user:redispass777@localhost:6379/3"
+  postgres: "postgresql://user:postgrespass777@localhost:5432/app"
+
+oauth:
+  google: "ya29.a0AfH6SMBxExampleYamlOAuthToken777"
+  facebook: "EAACEdEose0cBAExampleYamlFacebookToken777"
+  slack: "xoxb-7777777777-7777777777-7777777777-abcdefghijkl"
+
+# Additional test patterns
+secrets:
+  - "my_super_secret_yaml_key_123"
+  - "another_hardcoded_password_456"
+  - "test_api_key_789"

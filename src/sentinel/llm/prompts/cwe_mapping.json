@@ -1,0 +1,46 @@
+{
+  "name": "cwe_mapping",
+  "version": "1.0",
+  "description": "Template for mapping security findings to Common Weakness Enumeration (CWE) identifiers",
+  "schema": {
+    "type": "object",
+    "required": ["cwe_id", "cwe_name", "description", "relevance"],
+    "properties": {
+      "cwe_id": {
+        "type": "string",
+        "description": "The most relevant CWE ID (e.g., CWE-798)"
+      },
+      "cwe_name": {
+        "type": "string",
+        "description": "The official CWE name"
+      },
+      "description": {
+        "type": "string",
+        "description": "Brief description of how this finding relates to the CWE"
+      },
+      "relevance": {
+        "type": "string",
+        "enum": ["exact", "strong", "moderate", "weak"],
+        "description": "How strongly this finding relates to the CWE"
+      },
+      "references": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Supporting references or links to CWE documentation"
+      },
+      "alternative_cwes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Alternative CWE IDs that might also be relevant"
+      }
+    }
+  },
+  "template": {
+    "system": "You are a security expert mapping vulnerabilities to Common Weakness Enumeration (CWE) identifiers. Choose the most specific and appropriate CWE.",
+    "user": "Map the following security finding to the most relevant Common Weakness Enumeration (CWE) identifier:\n\nRule: {{rule_id}}\nSeverity: {{severity}}\nFile: {{file_path}}\nLine: {{line}}\nExcerpt: {{excerpt}}\nLanguage: {{language}}\n\nProvide:\n1. The most relevant CWE ID (e.g., CWE-798)\n2. The CWE name\n3. A brief description of how this finding relates to the CWE\n4. Any supporting references or links\n\nIf multiple CWEs are relevant, choose the most specific and appropriate one. Respond with a JSON object matching the specified schema."
+  }
+}

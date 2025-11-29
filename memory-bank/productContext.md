@@ -103,4 +103,20 @@ CodeSentinel is a local-first security & secrets scanner designed for developers
 * Planned integration with user-provided LLMs for explanations
 * Plugin system for extensible rule sets
 * Configuration-driven behavior
+## Business Model & Licensing (Internal)
+
+**Current Status:**
+- Proprietary, private development
+- No implied promise of free/zero-cost licensing
+- Future commercialization options being evaluated
+
+**Potential Future Models:**
+- Paid CLI tool with premium features
+- Student/educational edition with limitations
+- Enterprise licensing for teams
+- Open core model (basic features open source)
+
+No public distribution commitments at this time.
+
+2025-11-29 02:22:00 - Added internal licensing and positioning note for Phase 2 finalization
 * Cross-platform compatibility (Windows, macOS, Linux)

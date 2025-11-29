@@ -1,0 +1,16 @@
+Analyze the following security finding and provide a clear, concise explanation:
+
+Rule: {{rule_id}}
+Severity: {{severity}}
+File: {{file_path}}
+Line: {{line}}
+Excerpt: {{excerpt}}
+Language: {{language}}
+
+Explain:
+1. Why this is a security risk
+2. How attackers might exploit it  
+3. The potential impact on the system
+4. Any environment-specific considerations
+
+Keep the explanation technical but accessible to developers.

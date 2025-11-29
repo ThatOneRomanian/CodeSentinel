@@ -2,11 +2,18 @@
 Pattern matching utilities for CodeSentinel.
 
 Provides functions for compiling and matching regex patterns for security scanning.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
 import re
+import logging
 from typing import Dict, List, Tuple, Optional, Pattern
 from dataclasses import dataclass
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -36,8 +43,7 @@ def compile_patterns(pattern_definitions: Dict[str, str]) -> Dict[str, Pattern]:
         try:
             compiled_patterns[pattern_id] = re.compile(regex, re.IGNORECASE | re.MULTILINE)
         except re.error as e:
-            # Log pattern compilation errors (will be enhanced in Phase 1)
-            print(f"Warning: Failed to compile pattern {pattern_id}: {e}")
+            logger.warning(f"Failed to compile pattern {pattern_id}: {e}")
     return compiled_patterns
 
 

@@ -1,0 +1,41 @@
+{
+  "name": "security_explanation",
+  "version": "1.0",
+  "description": "Template for generating security risk explanations",
+  "schema": {
+    "type": "object",
+    "required": ["explanation", "risk_factors", "attack_vectors"],
+    "properties": {
+      "explanation": {
+        "type": "string",
+        "description": "Clear, concise explanation of the security risk"
+      },
+      "risk_factors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of specific risk factors contributing to the severity"
+      },
+      "attack_vectors": {
+        "type": "array", 
+        "items": {
+          "type": "string"
+        },
+        "description": "List of potential attack vectors or exploitation methods"
+      },
+      "impact_analysis": {
+        "type": "string",
+        "description": "Analysis of potential impact on the system"
+      },
+      "environment_context": {
+        "type": "string",
+        "description": "Environment-specific considerations"
+      }
+    }
+  },
+  "template": {
+    "system": "You are a security expert analyzing code vulnerabilities. Provide clear, technical explanations of security risks.",
+    "user": "Analyze the following security finding and provide a clear, concise explanation:\n\nRule: {{rule_id}}\nSeverity: {{severity}}\nFile: {{file_path}}\nLine: {{line}}\nExcerpt: {{excerpt}}\nLanguage: {{language}}\n\nExplain:\n1. Why this is a security risk\n2. How attackers might exploit it  \n3. The potential impact on the system\n4. Any environment-specific considerations\n\nKeep the explanation technical but accessible to developers. Respond with a JSON object matching the specified schema."
+  }
+}

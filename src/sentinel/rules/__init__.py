@@ -1,11 +1,13 @@
 """
 Rules module for CodeSentinel.
 
-Provides security rules for detecting secrets and insecure configurations in codebases.
+Contains security rule implementations and base classes for vulnerability detection.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-from .base import Rule, Finding, Severity
-from .secrets import SecretRules
-from .configs import ConfigRules
+from sentinel.rules.base import Finding
+from sentinel.rules.configs import HardcodedAPIRule, HardcodedDatabaseRule
 
-__all__ = ["Rule", "Finding", "Severity", "SecretRules", "ConfigRules"]
+__all__ = ["Finding", "HardcodedAPIRule", "HardcodedDatabaseRule"]

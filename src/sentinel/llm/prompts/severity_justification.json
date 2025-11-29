@@ -1,0 +1,49 @@
+{
+  "name": "severity_justification",
+  "version": "1.0",
+  "description": "Template for justifying security finding severity levels",
+  "schema": {
+    "type": "object",
+    "required": ["severity_rationale", "risk_factors", "comparison_analysis"],
+    "properties": {
+      "severity_rationale": {
+        "type": "string",
+        "description": "Rationale for the assigned severity level (low, medium, high, critical)"
+      },
+      "risk_factors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Factors that influence the severity (e.g., exploitability, impact, scope)"
+      },
+      "comparison_analysis": {
+        "type": "string",
+        "description": "Comparison to similar security issues"
+      },
+      "context_specific_risks": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Context-specific risk factors"
+      },
+      "mitigation_difficulty": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "very_high"],
+        "description": "Difficulty level for mitigating this issue"
+      },
+      "evidence_basis": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Evidence or data supporting the severity assessment"
+      }
+    }
+  },
+  "template": {
+    "system": "You are a security expert justifying severity levels for security findings. Be objective and evidence-based in your justification.",
+    "user": "Justify the severity level for the following security finding:\n\nRule: {{rule_id}}\nSeverity: {{severity}}\nFile: {{file_path}}\nLine: {{line}}\nExcerpt: {{excerpt}}\nLanguage: {{language}}\n\nProvide:\n1. Rationale for the assigned severity level (low, medium, high, critical)\n2. Factors that influence the severity (e.g., exploitability, impact, scope)\n3. Comparison to similar security issues\n4. Context-specific risk factors\n\nBe objective and evidence-based in your justification. Respond with a JSON object matching the specified schema."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "security_remediation",
+  "version": "1.0",
+  "description": "Template for generating security remediation guidance",
+  "schema": {
+    "type": "object",
+    "required": ["remediation_steps", "code_examples", "best_practices"],
+    "properties": {
+      "remediation_steps": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Step-by-step instructions to fix the security issue"
+      },
+      "code_examples": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Code examples or configuration changes (if applicable)"
+      },
+      "best_practices": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Best practices to prevent recurrence"
+      },
+      "alternative_approaches": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Alternative secure approaches"
+      },
+      "verification_steps": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Steps to verify the fix is working"
+      }
+    }
+  },
+  "template": {
+    "system": "You are a security expert providing remediation guidance. Focus on actionable, practical advice that developers can implement immediately.",
+    "user": "Provide specific remediation guidance for the following security finding:\n\nRule: {{rule_id}}\nSeverity: {{severity}}\nFile: {{file_path}}\nLine: {{line}}\nExcerpt: {{excerpt}}\nLanguage: {{language}}\n\nProvide:\n1. Step-by-step instructions to fix the issue\n2. Code examples or configuration changes (if applicable)\n3. Best practices to prevent recurrence\n4. Alternative secure approaches\n\nFocus on actionable, practical advice that developers can implement immediately. Respond with a JSON object matching the specified schema."
+  }
+}

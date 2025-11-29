@@ -1,9 +1,12 @@
 """
 CLI module for CodeSentinel.
 
-Provides command-line interface for scanning directories and reporting security findings.
+Contains command-line interface components for the security scanner.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-from .main import main
+from sentinel.cli.main import main
 
 __all__ = ["main"]

@@ -1,24 +1,28 @@
+# CodeSentinel Project Configuration
+#
+# © 2025 Andrei Antonescu. All rights reserved.
+# Proprietary – not licensed for public redistribution.
+
 [build-system]
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "codesentinel"
-version = "0.1.0"
-description = "Local-first security scanner for developers and students"
+version = "0.2.0"
+description = "Local-first security scanner for secrets, configurations, and code hygiene."
 readme = "README.md"
 authors = [
-    {name = "CodeSentinel Team", email = "team@codesentinel.dev"},
+    {name = "Andrei Antonescu", email = "antonesc@sheridancollege.ca"},
 ]
-license = {text = "MIT"}
+license = {text = "Proprietary"}
 keywords = ["security", "scanner", "secrets", "cli", "local-first"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -28,9 +32,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "rich>=13.0.0",
-    "pyyaml>=6.0",
-    "click>=8.0.0",
+    # Phase 1 is dependency-free - no external runtime dependencies
 ]
 
 [project.optional-dependencies]
@@ -44,17 +46,13 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/codesentinel/codesentinel"
+Homepage = "https://github.com/ThatOneRomanian/codesentinel"
 Documentation = "https://docs.codesentinel.dev"
-Repository = "https://github.com/codesentinel/codesentinel"
-Issues = "https://github.com/codesentinel/codesentinel/issues"
+Repository = "https://github.com/ThatOneRomanian/codesentinel"
+Issues = "https://github.com/ThatOneRomanian/codesentinel/issues"
 
 [project.scripts]
 codesentinel = "sentinel.cli.main:main"
-
-[project.entry-points."codesentinel.rules"]
-secrets = "sentinel.rules.secrets:SecretRules"
-configs = "sentinel.rules.configs:ConfigRules"
 
 [tool.setuptools.packages.find]
 where = ["src"]

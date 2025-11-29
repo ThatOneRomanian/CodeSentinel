@@ -1,10 +1,27 @@
 """
-Utilities module for CodeSentinel.
+Utility module for CodeSentinel.
 
-Provides common utility functions and patterns used across the CodeSentinel codebase.
+Contains helper functions and utilities for security scanning operations.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-from .entropy import calculate_entropy, is_high_entropy
-from .patterns import compile_patterns, match_patterns
+from sentinel.utils.entropy import shannon_entropy, is_high_entropy
+from sentinel.utils.patterns import (
+    compile_patterns,
+    match_patterns,
+    validate_pattern,
+    create_secret_patterns,
+    create_config_patterns
+)
 
-__all__ = ["calculate_entropy", "is_high_entropy", "compile_patterns", "match_patterns"]
+__all__ = [
+    "shannon_entropy",
+    "is_high_entropy",
+    "compile_patterns",
+    "match_patterns",
+    "validate_pattern",
+    "create_secret_patterns",
+    "create_config_patterns"
+]

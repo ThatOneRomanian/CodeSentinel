@@ -1,131 +1,161 @@
 """
 File system walker for CodeSentinel.
 
-Provides recursive directory scanning with .gitignore support and file filtering.
+Recursively discovers files in target directories, applies file type filters,
+and returns a list of file paths for scanning according to the Phase 1 specification.
+
+© 2025 Andrei Antonescu. All rights reserved.
+Proprietary – not licensed for public redistribution.
 """
 
-import os
 import pathlib
-from typing import Iterator, List, Set, Optional
+from typing import List, Set, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class FileWalker:
+# Default file extensions to scan (text-based source code files)
+DEFAULT_INCLUDE_EXTENSIONS = {
+    '.py', '.js', '.jsx', '.ts', '.tsx', '.java', '.c', '.cpp', '.h', '.hpp',
+    '.cs', '.php', '.rb', '.go', '.rs', '.swift', '.kt', '.scala', '.m', '.mm',
+    '.html', '.htm', '.css', '.scss', '.sass', '.less', '.xml', '.json', '.yaml',
+    '.yml', '.md', '.txt', '.cfg', '.conf', '.ini', '.toml', '.env', '.sh', '.bash',
+    '.zsh', '.fish', '.ps1', '.bat', '.cmd', '.sql', '.r', '.m', '.mat', '.jl'
+}
+
+# Default files and directories to exclude
+DEFAULT_EXCLUDE_PATTERNS = {
+    '.git', '__pycache__', '.pytest_cache', '.vscode', '.idea', 'node_modules',
+    'build', 'dist', 'target', 'out', 'bin', 'obj', '.next', '.nuxt', '.cache',
+    'vendor', 'packages', 'bower_components', 'coverage', '.nyc_output',
+    '*.egg-info', '*.pyc', '*.pyo', '*.pyd', '*.so', '*.dll', '*.exe'
+}
+
+
+def walk_directory(
+    target_path: pathlib.Path,
+    include_extensions: Optional[Set[str]] = None,
+    exclude_patterns: Optional[Set[str]] = None
+) -> List[pathlib.Path]:
     """
-    Recursively scans directories for files to analyze.
+    Recursively walk directory and collect files matching criteria.
 
-    Respects .gitignore-like exclusions and skips binary files while enforcing
-    size limits and returning normalized file lists.
+    Args:
+        target_path: Directory or file path to scan
+        include_extensions: Set of file extensions to include (default: common source code files)
+        exclude_patterns: Set of patterns to exclude (default: common build artifacts, cache, etc.)
+
+    Returns:
+        List of file paths that match the inclusion criteria and don't match exclusion patterns
+
+    Raises:
+        FileNotFoundError: If target_path doesn't exist
+        PermissionError: If target_path cannot be accessed
+        ValueError: If target_path is not a file or directory
     """
+    if include_extensions is None:
+        include_extensions = DEFAULT_INCLUDE_EXTENSIONS
 
-    def __init__(
-        self,
-        exclude_patterns: Optional[List[str]] = None,
-        max_file_size: int = 10 * 1024 * 1024,  # 10MB default
-    ):
-        """
-        Initialize the file walker.
+    if exclude_patterns is None:
+        exclude_patterns = DEFAULT_EXCLUDE_PATTERNS
 
-        Args:
-            exclude_patterns: List of glob/regex patterns to exclude
-            max_file_size: Maximum file size in bytes to process
-        """
-        self.exclude_patterns = exclude_patterns or []
-        self.max_file_size = max_file_size
-        self._processed_files: Set[pathlib.Path] = set()
+    if not target_path.exists():
+        raise FileNotFoundError(f"Target path does not exist: {target_path}")
 
-    def scan_directory(self, target_path: str) -> Iterator[pathlib.Path]:
-        """
-        Recursively scan a directory for text files.
+    files: List[pathlib.Path] = []
 
-        Args:
-            target_path: Path to scan (file or directory)
+    if target_path.is_file():
+        # Single file mode
+        if _should_include_file(target_path, include_extensions, exclude_patterns):
+            files.append(target_path)
+        return files
 
-        Yields:
-            Path objects for each file to analyze
-        """
-        target = pathlib.Path(target_path)
+    if not target_path.is_dir():
+        raise ValueError(f"Target path is not a file or directory: {target_path}")
 
-        if target.is_file():
-            if self._should_process_file(target):
-                yield target
-            return
+    # Recursive directory walk
+    logger.info(f"Walking directory: {target_path}")
 
-        for file_path in target.rglob("*"):
-            if file_path.is_file() and self._should_process_file(file_path):
-                yield file_path
+    try:
+        for file_path in target_path.rglob('*'):
+            if not file_path.is_file():
+                continue
 
-    def _should_process_file(self, file_path: pathlib.Path) -> bool:
-        """
-        Determine if a file should be processed.
+            if _should_include_file(file_path, include_extensions, exclude_patterns):
+                files.append(file_path)
 
-        Args:
-            file_path: Path to the file
+    except PermissionError as e:
+        logger.warning(f"Permission denied while walking directory: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error walking directory: {e}")
+        raise
 
-        Returns:
-            True if file should be processed, False otherwise
-        """
-        # Check if already processed
-        if file_path in self._processed_files:
-            return False
+    logger.info(f"Found {len(files)} files to scan")
+    return files
 
-        # Check file size
-        try:
-            if file_path.stat().st_size > self.max_file_size:
-                return False
-        except OSError:
-            return False
 
-        # Check if binary file (placeholder implementation)
-        if self._is_binary_file(file_path):
-            return False
+def _should_include_file(
+    file_path: pathlib.Path,
+    include_extensions: Set[str],
+    exclude_patterns: Set[str]
+) -> bool:
+    """
+    Determine if a file should be included in scanning based on criteria.
 
-        # Check exclusion patterns
-        if self._is_excluded(file_path):
-            return False
+    Args:
+        file_path: Path to the file to check
+        include_extensions: Set of file extensions to include
+        exclude_patterns: Set of patterns to exclude
 
-        self._processed_files.add(file_path)
-        return True
-
-    def _is_binary_file(self, file_path: pathlib.Path) -> bool:
-        """
-        Check if a file is binary.
-
-        Args:
-            file_path: Path to the file
-
-        Returns:
-            True if file appears to be binary, False otherwise
-        """
-        # Placeholder implementation - will be enhanced in Phase 1
-        binary_extensions = {'.exe', '.dll', '.so', '.dylib', '.bin', '.jpg', '.png', '.gif', '.pdf'}
-        return file_path.suffix.lower() in binary_extensions
-
-    def _is_excluded(self, file_path: pathlib.Path) -> bool:
-        """
-        Check if a file should be excluded based on patterns.
-
-        Args:
-            file_path: Path to the file
-
-        Returns:
-            True if file should be excluded, False otherwise
-        """
-        # Placeholder implementation - will be enhanced in Phase 1
-        for pattern in self.exclude_patterns:
-            # Simple pattern matching for now
-            if pattern in str(file_path):
-                return True
+    Returns:
+        True if file should be included, False otherwise
+    """
+    # Check file extension
+    if file_path.suffix.lower() not in include_extensions:
         return False
 
-    def get_processed_count(self) -> int:
-        """
-        Get the number of files processed in the current scan.
+    # Check exclusion patterns
+    file_path_str = str(file_path)
+    for pattern in exclude_patterns:
+        if pattern.startswith('*'):
+            # Pattern like "*.pyc" - check file extension
+            if file_path_str.endswith(pattern[1:]):
+                return False
+        elif pattern in file_path_str:
+            # Pattern like ".git" - check if it appears anywhere in the path
+            return False
 
-        Returns:
-            Number of processed files
-        """
-        return len(self._processed_files)
+    # Check if file is readable
+    try:
+        file_path.stat()
+        return True
+    except (OSError, IOError):
+        logger.debug(f"Cannot access file: {file_path}")
+        return False
 
-    def reset(self) -> None:
-        """Reset the walker state for a new scan."""
-        self._processed_files.clear()
+
+def validate_target_path(target_path: str) -> pathlib.Path:
+    """
+    Validate and normalize a target path string.
+
+    Args:
+        target_path: String path to validate
+
+    Returns:
+        Normalized Path object
+
+    Raises:
+        FileNotFoundError: If path doesn't exist
+        ValueError: If path is invalid
+    """
+    if not target_path:
+        raise ValueError("Target path cannot be empty")
+
+    path = pathlib.Path(target_path).resolve()
+
+    if not path.exists():
+        raise FileNotFoundError(f"Target path does not exist: {target_path}")
+
+    return path

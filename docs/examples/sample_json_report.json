@@ -1,0 +1,118 @@
+{
+  "scan_summary": {
+    "version": "0.2.0",
+    "scan_date": "2025-11-29T02:20:00Z",
+    "target_directory": "sample-project/",
+    "total_files_scanned": 7,
+    "files_with_issues": 3,
+    "scan_duration_seconds": 0.45,
+    "total_findings": 4,
+    "by_severity": {
+      "high": 2,
+      "medium": 1,
+      "low": 1
+    },
+    "exit_code": 1
+  },
+  "findings": [
+    {
+      "rule_id": "private-key-detected",
+      "rule_name": "Private Key Detection",
+      "file_path": "private_key.pem",
+      "line": 1,
+      "severity": "high",
+      "confidence": 0.95,
+      "excerpt": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...",
+      "description": "Private cryptographic key found in version control",
+      "remediation": "Generate new private keys immediately and revoke the exposed ones. Store keys in secure secret management systems.",
+      "cwe_id": "CWE-312",
+      "risk_score": 9.2,
+      "references": [
+        "https://cwe.mitre.org/data/definitions/312.html",
+        "https://owasp.org/www-community/vulnerabilities/Information_exposure_through_environment_variables"
+      ]
+    },
+    {
+      "rule_id": "env-credentials-detected",
+      "rule_name": "Environment File Credentials",
+      "file_path": "credentials.env",
+      "line": 1,
+      "severity": "high",
+      "confidence": 0.90,
+      "excerpt": "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE",
+      "description": "AWS access key found in environment file",
+      "remediation": "Rotate the exposed AWS credentials immediately. Use AWS Secrets Manager or environment variables outside of version control.",
+      "cwe_id": "CWE-798",
+      "risk_score": 8.7,
+      "references": [
+        "https://cwe.mitre.org/data/definitions/798.html",
+        "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+      ]
+    },
+    {
+      "rule_id": "config-secrets-detected",
+      "rule_name": "Configuration File Secrets",
+      "file_path": "config.json",
+      "line": 3,
+      "severity": "medium",
+      "confidence": 0.85,
+      "excerpt": "\"database_password\": \"SuperSecret123!\"",
+      "description": "Hardcoded database password in configuration file",
+      "remediation": "Move database credentials to environment variables or secure secret storage. Use connection strings without embedded passwords.",
+      "cwe_id": "CWE-259",
+      "risk_score": 6.5,
+      "references": [
+        "https://cwe.mitre.org/data/definitions/259.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+      ]
+    },
+    {
+      "rule_id": "generic-api-key-detected",
+      "rule_name": "Generic API Key Pattern",
+      "file_path": "config.js",
+      "line": 5,
+      "severity": "low",
+      "confidence": 0.65,
+      "excerpt": "const apiKey = \"sk_test_51ABC123XYZ789\";",
+      "description": "Potential API key matching common patterns",
+      "remediation": "Verify if this is a test key. If production, rotate immediately and store in secure environment variables.",
+      "cwe_id": "CWE-798",
+      "risk_score": 4.2,
+      "references": [
+        "https://cwe.mitre.org/data/definitions/798.html"
+      ]
+    }
+  ],
+  "files_scanned": [
+    "app.py",
+    "config.js",
+    "config.json",
+    "config.yaml",
+    "credentials.env",
+    "private_key.pem",
+    "README.md"
+  ],
+  "files_without_issues": [
+    "app.py",
+    "config.yaml",
+    "README.md"
+  ],
+  "recommendations": {
+    "immediate_actions": [
+      "Rotate all exposed AWS credentials immediately",
+      "Generate new private keys and revoke the exposed ones",
+      "Move credentials to secure secret management systems"
+    ],
+    "prevention": [
+      "Add .env to .gitignore",
+      "Use environment variables for configuration",
+      "Implement pre-commit hooks with CodeSentinel",
+      "Store secrets in dedicated secret managers"
+    ],
+    "development_practices": [
+      "Use test credentials that are clearly marked as such",
+      "Never commit real credentials, even in private repositories",
+      "Regular security scanning in CI/CD pipelines"
+    ]
+  }
+}
