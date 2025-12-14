@@ -4,8 +4,8 @@ Unit tests for the dogfooding runner functionality.
 Tests the findings counting logic, JSON extraction, and debug mode features
 of the CodeSentinel dogfooding runner.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import json

@@ -4,8 +4,8 @@ Unit tests for finding deduplication logic in CodeSentinel.
 Tests the deduplication functionality implemented in Phase 4 to prevent
 multiple findings for the same token while maintaining precedence rules.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib

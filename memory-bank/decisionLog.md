@@ -645,3 +645,22 @@ The brace counting approach provides:
 - Updated memory-bank files to reflect open-source transition
 - Maintained technical decisions and architecture while opening access
 - Created public GitHub repository with clear contribution guidelines
+
+## [2025-12-14 01:57:00] - Security Contact Email Standardization
+
+**Decision:** Standardize security contact email to security@codesentinel.app domain for all project communications.
+
+**Rationale:**
+- Establish a professional, dedicated channel for security vulnerability reports
+- Create consistent contact point following open-source transition
+- Enable proper security disclosure workflow separate from general inquiries
+- Increase community trust through transparent security practices
+- Align with open-source security best practices
+
+**Implementation Details:**
+- Updated SECURITY.md with new security@codesentinel.app contact information
+- Updated reporting templates to reference the new security contact
+- Configured email forwarding and monitoring for the new address
+- Added standardized security issue templates to GitHub repository
+- Updated all documentation references to use consistent security contact
+- Integrated with the MIT license transition process

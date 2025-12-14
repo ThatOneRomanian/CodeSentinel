@@ -4,8 +4,8 @@ Unit tests for AI Output Validation in CodeSentinel Phase 2.
 Tests the validation functions and classes that ensure AI-generated
 output meets quality and safety standards.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

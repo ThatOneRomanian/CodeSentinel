@@ -23,5 +23,5 @@ All templates support these variables:
 
 Templates are loaded by the ExplanationEngine and populated with finding data before being sent to LLM providers.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT

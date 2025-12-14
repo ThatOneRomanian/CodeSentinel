@@ -4,8 +4,8 @@ Unit tests for Provider-Aware AI Explainer Integration in CodeSentinel Phase 2.
 Tests the AI explainer integration with provider-aware findings, including
 token classification, enhanced risk scoring, and provider-specific explanations.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

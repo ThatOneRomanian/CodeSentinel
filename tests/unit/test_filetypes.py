@@ -3,8 +3,8 @@ Unit tests for the filetypes language detection module.
 
 Tests the detect_language function with various file extensions and edge cases.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib

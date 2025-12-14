@@ -4,8 +4,8 @@ Unit tests for AI Safety Layer in CodeSentinel Phase 2.
 Tests the safety functions and classes that protect AI operations
 from malicious input and sensitive data exposure.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

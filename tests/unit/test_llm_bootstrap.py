@@ -4,8 +4,8 @@ Unit tests for CodeSentinel Phase 2 LLM bootstrap components.
 Tests the LLM provider interface, explanation engine, and CLI integration
 without actual LLM integration during the bootstrap phase.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

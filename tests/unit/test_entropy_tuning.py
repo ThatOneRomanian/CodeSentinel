@@ -4,8 +4,8 @@ Unit tests for entropy tuning and edge-case handling.
 Tests the enhanced entropy detection, JWT validation, and PEM detection
 improvements implemented in Phase 2.5 Rule Hardening.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib

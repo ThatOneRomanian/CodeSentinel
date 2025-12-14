@@ -4,8 +4,8 @@ Unit tests for AI Caching Layer in CodeSentinel Phase 2.
 Tests the persistent caching system for AI explanations, prompts, and CWE mappings
 to minimize LLM API calls and improve performance.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

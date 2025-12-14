@@ -4,8 +4,8 @@ Unit tests for Rule Validation and Abstract Class Handling.
 Tests that the Rule Engine correctly handles abstract classes, invalid rules,
 and maintains backward compatibility according to Phase 2 requirements.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import os

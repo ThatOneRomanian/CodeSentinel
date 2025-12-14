@@ -4,8 +4,8 @@ Unit tests for token type classification module.
 Tests the provider-aware token classification system to ensure accurate
 identification of token types and proper precedence handling.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pytest

@@ -4,8 +4,8 @@ Unit tests for Rule Export Patterns and Architecture Integrity.
 Tests that enforce the consolidated rule export pattern and prevent
 abstract class instantiation regressions.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import os
