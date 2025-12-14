@@ -1,10 +1,16 @@
+from .parsers import (
+    parse_json, 
+    parse_dockerfile, 
+    get_yaml_key_value, 
+    find_hcl_blocks
+)
 """
 Utility module for CodeSentinel.
 
 Contains helper functions and utilities for security scanning operations.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from sentinel.utils.entropy import shannon_entropy, is_high_entropy

@@ -6,11 +6,18 @@ File: {{file_path}}
 Line: {{line}}
 Excerpt: {{excerpt}}
 Language: {{language}}
+Category: {{category}}
+Tags: {{tags}}
 
 Explain:
 1. Why this is a security risk
 2. How attackers might exploit it  
 3. The potential impact on the system
 4. Any environment-specific considerations
+
+Additional Context:
+- Consider the token/provider classification when assessing risk
+- Test vs production indicators may affect severity assessment
+- Provider-specific attack vectors should be highlighted
 
 Keep the explanation technical but accessible to developers.

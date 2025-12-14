@@ -3,8 +3,8 @@ Rules module for CodeSentinel.
 
 Contains security rule implementations and base classes for vulnerability detection.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from sentinel.rules.base import Finding

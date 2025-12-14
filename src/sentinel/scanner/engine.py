@@ -4,18 +4,19 @@ Rule engine for CodeSentinel.
 Dynamically loads and executes security rules against text files, returning
 normalized finding objects according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import importlib
 import inspect
 import pathlib
 import sys
-from typing import List, Optional, Protocol, Type, Any
+from typing import List, Optional, Protocol, Type, Any, Dict, Tuple
 import logging
 
 from sentinel.rules.base import Finding, Rule
+from sentinel.rules.token_types import TokenType, classify_token
 
 
 logger = logging.getLogger(__name__)
@@ -214,7 +215,7 @@ class RuleLoader:
         Returns:
             True if object is a valid Rule implementation
         """
-        required_attrs = ['id', 'description', 'severity']
+        required_attrs = ['id', 'description', 'severity', 'precedence'] # Added 'precedence'
         required_methods = ['apply']
 
         # Check for abstract classes and protocols
@@ -258,6 +259,11 @@ class RuleLoader:
         if not rule_instance.severity or not isinstance(rule_instance.severity, str):
             logger.warning(f"Rule has invalid severity: {rule_instance}")
             return False
+            
+        # Validate precedence is an integer (Phase 2.7 addition)
+        if not isinstance(rule_instance.precedence, int) or not (1 <= rule_instance.precedence <= 100):
+            logger.warning(f"Rule has invalid precedence value '{rule_instance.precedence}': {rule_instance}")
+            return False
 
         # Validate severity is one of the expected values
         valid_severities = ['critical', 'high', 'medium', 'low', 'info']
@@ -268,22 +274,171 @@ class RuleLoader:
         return True
 
 
+def _get_rule_precedence(finding: Finding) -> int:
+    """
+    Determine precedence score for a finding based on rule type and token classification.
+    
+    Higher precedence values take priority during deduplication.
+    """
+    # Check if precedence is explicitly set on the finding (Phase 2.7 addition)
+    if finding.rule_precedence is not None:
+        return finding.rule_precedence
+        
+    # Fallback to logic used before explicit precedence fields were mandatory
+    
+    # Extract token from excerpt for classification
+    excerpt = finding.excerpt or ""
+    token = _extract_token_from_excerpt(excerpt)
+    token_type = classify_token(token) if token else None
+    
+    # Provider-specific rules have highest precedence
+    provider_specific_rules = {
+        'SECRET_AWS_ACCESS_KEY', 'SECRET_AWS_SECRET_KEY', 'SECRET_GCP_SERVICE_ACCOUNT',
+        'SECRET_AZURE_CLIENT_SECRET', 'SECRET_STRIPE_API_KEY', 'SECRET_JWT',
+        'SECRET_PRIVATE_KEY', 'SECRET_SLACK_BOT_TOKEN', 'SECRET_SLACK_USER_TOKEN',
+        'SECRET_GITHUB_TOKEN', 'SECRET_FACEBOOK_ACCESS_TOKEN'
+    }
+    
+    if finding.rule_id in provider_specific_rules:
+        return 100  # Highest precedence for provider-specific
+    
+    # OAuth tokens and hardcoded passwords
+    if finding.rule_id in {'SECRET_OAUTH_TOKEN', 'SECRET_HARDCODED_PASSWORD'}:
+        return 90
+    
+    # Generic API keys
+    if finding.rule_id in {'SECRET_GENERIC_API_KEY', 'hardcoded-api-key'}:
+        return 80
+    
+    # High entropy strings (lowest precedence for secrets)
+    if finding.rule_id == 'SECRET_HIGH_ENTROPY':
+        return 70
+        
+    # Specialized Misconfiguration rules (Phase 2.7) - We hardcode this here 
+    # to maintain backward compatibility for Phase 2.5 core rules (60)
+    # Since Phase 2.7 rules explicitly set precedence=65, this branch is mainly for Phase 2.5
+    # config rules which do not have the 'precedence' attribute on the finding.
+    
+    # Configuration rules (separate category, Phase 2.5 era)
+    config_rules = {
+        'insecure-bind', 'debug-enabled', 'weak-crypto', 'exposed-env-vars',
+        'insecure-literals', 'development-settings', 'tls-issues', 'hardcoded-database'
+    }
+    if finding.rule_id in config_rules:
+        return 60
+    
+    # Default precedence for unknown rules
+    return 50
+
+
+def _extract_token_from_excerpt(excerpt: str) -> Optional[str]:
+    """
+    Extract potential token value from excerpt for classification.
+    """
+    if not excerpt:
+        return None
+        
+    # Look for common assignment patterns
+    patterns = [
+        r'[\'"]([A-Za-z0-9+/=\-_\.]{16,})[\'"]',  # Quoted strings
+        r'=\s*([A-Za-z0-9+/=\-_\.]{16,})\s*',     # Assignment without quotes
+        r':\s*[\'"]([A-Za-z0-9+/=\-_\.]{16,})[\'"]',  # YAML-style
+    ]
+    
+    import re
+    for pattern in patterns:
+        match = re.search(pattern, excerpt)
+        if match:
+            return match.group(1)
+    
+    # Fallback: look for any long alphanumeric string
+    long_strings = re.findall(r'\b[A-Za-z0-9+/=\-_\.]{16,}\b', excerpt)
+    if long_strings:
+        return long_strings[0]
+    
+    return None
+
+
+def _get_finding_group_key(finding: Finding) -> Tuple[str, int, str]:
+    """
+    Create a grouping key for findings based on file, line, and overlapping excerpt.
+    """
+    # Normalize file path to string for consistent comparison
+    file_path = str(finding.file_path)
+    
+    # Use 0 as placeholder for None line numbers
+    line_number = finding.line or 0
+    
+    # Normalize excerpt by removing extra whitespace, use empty string for None
+    excerpt = finding.excerpt or ""
+    normalized_excerpt = ' '.join(excerpt.strip().split())
+    
+    return (file_path, line_number, normalized_excerpt)
+
+
+def _deduplicate_findings(findings: List[Finding]) -> List[Finding]:
+    """
+    Deduplicate findings by keeping only the highest-precedence finding per group.
+    """
+    if not findings:
+        return []
+    
+    # Group findings by file/line/excerpt
+    grouped_findings: Dict[Tuple[str, int, str], List[Finding]] = {}
+    
+    for finding in findings:
+        group_key = _get_finding_group_key(finding)
+        if group_key not in grouped_findings:
+            grouped_findings[group_key] = []
+        grouped_findings[group_key].append(finding)
+    
+    # For each group, keep only the highest-precedence finding
+    deduplicated = []
+    
+    for group_key, group_findings in grouped_findings.items():
+        if len(group_findings) == 1:
+            # No duplicates in this group
+            deduplicated.append(group_findings[0])
+        else:
+            # Multiple findings for same location - apply precedence rules
+            best_finding = _select_best_finding(group_findings)
+            deduplicated.append(best_finding)
+            
+            # Log deduplication for debugging
+            if len(group_findings) > 1:
+                logger.debug(
+                    f"Deduplicated {len(group_findings)} findings for {group_key[0]}:{group_key[1]} "
+                    f"-> keeping {best_finding.rule_id} (precedence: {_get_rule_precedence(best_finding)})"
+                )
+    
+    logger.info(f"Deduplication reduced {len(findings)} findings to {len(deduplicated)} unique findings")
+    return deduplicated
+
+
+def _select_best_finding(findings: List[Finding]) -> Finding:
+    """
+    Select the best finding from a group of duplicates based on precedence rules.
+    """
+    if len(findings) == 1:
+        return findings[0]
+    
+    # Sort by precedence, then confidence, then rule_id for deterministic selection
+    sorted_findings = sorted(
+        findings,
+        key=lambda f: (
+            _get_rule_precedence(f),  # Higher precedence first
+            f.confidence or 0.0,      # Higher confidence first  
+            f.rule_id                 # Alphabetical for tie-breaking
+        ),
+        reverse=True
+    )
+    
+    return sorted_findings[0]
+
+
 def run_rules(files: List[pathlib.Path]) -> List[Finding]:
     """
     Main function to run all loaded rules against a list of files.
-
-    Reads text files from the list produced by File Walker, skips binary files,
-    applies all loaded rules to each file, and returns aggregated findings.
-
-    Args:
-        files: List of file paths to scan
-
-    Returns:
-        Flat list of Finding objects from all rules and files
-
-    Raises:
-        FileNotFoundError: If rules directory doesn't exist
-        RuntimeError: If no rules can be loaded
     """
     # Initialize rule loader with rules directory
     rules_dir = pathlib.Path(__file__).parent.parent / "rules"
@@ -327,5 +482,9 @@ def run_rules(files: List[pathlib.Path]) -> List[Finding]:
             logger.error(f"Unexpected error processing file {file_path}: {e}")
             continue
 
-    logger.info(f"Scan complete: {len(all_findings)} total findings across {len(files)} files")
-    return all_findings
+    # Apply deduplication to remove duplicate findings for the same token
+    deduplicated_findings = _deduplicate_findings(all_findings)
+    
+    logger.info(f"Scan complete: {len(deduplicated_findings)} unique findings across {len(files)} files "
+                f"(reduced from {len(all_findings)} total findings)")
+    return deduplicated_findings

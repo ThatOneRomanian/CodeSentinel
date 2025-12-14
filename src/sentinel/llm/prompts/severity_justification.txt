@@ -6,11 +6,18 @@ File: {{file_path}}
 Line: {{line}}
 Excerpt: {{excerpt}}
 Language: {{language}}
+Category: {{category}}
+Tags: {{tags}}
 
 Provide:
 1. Rationale for the assigned severity level (low, medium, high, critical)
 2. Factors that influence the severity (e.g., exploitability, impact, scope)
 3. Comparison to similar security issues
 4. Context-specific risk factors
+
+Additional Context:
+- Consider the token/provider classification when assessing severity
+- Test vs production indicators may affect risk level
+- Provider-specific implications should be factored in
 
 Be objective and evidence-based in your justification.

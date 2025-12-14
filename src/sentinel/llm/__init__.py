@@ -4,8 +4,8 @@ LLM module for CodeSentinel Phase 2 AI Explainer Mode.
 Provides AI-powered security explanations, CWE mapping, and remediation guidance
 without modifying the core scanning logic.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from sentinel.llm.provider import LLMProvider, DeepSeekProvider, OpenAIProvider, LocalOllamaProvider

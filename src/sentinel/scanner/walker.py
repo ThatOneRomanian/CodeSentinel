@@ -4,8 +4,8 @@ File system walker for CodeSentinel.
 Recursively discovers files in target directories, applies file type filters,
 and returns a list of file paths for scanning according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib

@@ -4,8 +4,8 @@ AI Caching Layer for CodeSentinel Phase 2.
 Provides persistent caching for AI explanations, prompts, and CWE mappings
 to minimize LLM API calls and improve performance.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import json

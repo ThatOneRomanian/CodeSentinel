@@ -4,8 +4,8 @@ Configuration rule implementations for CodeSentinel.
 Detects hardcoded configuration values, API keys, and other sensitive configuration
 patterns according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib
@@ -13,6 +13,7 @@ import re
 from typing import List, Dict
 
 from sentinel.rules.base import Finding, RuleMeta, create_default_rule_meta
+from sentinel.rules.token_types import classify_token, TokenType
 
 
 # TODO: Phase 2 - Add CWE mapping for hardcoded API keys (CWE-798)
@@ -27,6 +28,7 @@ class HardcodedAPIRule:
     id = "hardcoded-api-key"
     description = "Hardcoded API key or token detected"
     severity = "high"
+    precedence = 80  # Generic API keys precedence
     meta = create_default_rule_meta(
         category="secrets",
         cwe_ids=["CWE-798"],
@@ -42,10 +44,10 @@ class HardcodedAPIRule:
 
     # Common API key patterns
     API_KEY_PATTERNS = {
-        "api_key_assignment": r'api[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
-        "secret_key_assignment": r'secret[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
-        "token_assignment": r'token\s*[=:]\s*["\']([^"\']{20,})["\']',
-        "password_assignment": r'password\s*[=:]\s*["\']([^"\']{8,})["\']',
+        "api_key_assignment": r'\bapi[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "secret_key_assignment": r'\bsecret[_-]?key\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "token_assignment": r'\btoken\s*[=:]\s*["\']([^"\']{20,})["\']',
+        "password_assignment": r'\bpassword\s*[=:]\s*["\']([^"\']{8,})["\']',
         "stripe_secret_key": r'["\'](sk_(live|test)_[a-zA-Z0-9]{20,})["\']',
         "stripe_restricted_key": r'["\'](rk_(live|test)_[a-zA-Z0-9]{20,})["\']',
         "aws_access_key": r'["\'](AKIA[0-9A-Z]{16})["\']',
@@ -78,6 +80,34 @@ class HardcodedAPIRule:
 
             # Only create one finding per line, even if multiple patterns match
             if matches:
+                # Extract the actual token value for classification
+                token_value = None
+                for pattern_match in matches:
+                    # Extract the captured group (the actual token)
+                    if pattern_match.pattern_id in ["stripe_secret_key", "stripe_restricted_key", 
+                                                  "aws_access_key", "github_token", "slack_token"]:
+                        # Extract the token from matched_text using regex
+                        token_match = re.search(r'["\']([^"\']+)["\']', pattern_match.matched_text)
+                        if token_match:
+                            token_value = token_match.group(1)
+                    else:
+                        # For assignment patterns, extract the value
+                        assignment_patterns = ["api_key_assignment", "secret_key_assignment", 
+                                             "token_assignment", "password_assignment"]
+                        if pattern_match.pattern_id in assignment_patterns:
+                            # Extract the value inside quotes
+                            quote_match = re.search(r'["\']([^"\']+)["\']', line)
+                            if quote_match:
+                                token_value = quote_match.group(1)
+                    break  # Only process first match per line
+
+                # Skip if this token is already classified by a more specific secret rule
+                if token_value:
+                    token_type = classify_token(token_value)
+                    # Don't create finding if it's a specific provider token (avoid double-counting)
+                    if token_type and token_type not in [TokenType.GENERIC_HIGH_ENTROPY, None]:
+                        continue
+
                 # Create excerpt (truncate if too long)
                 excerpt = line.strip()
                 if len(excerpt) > 100:
@@ -108,6 +138,7 @@ class HardcodedDatabaseRule:
     id = "hardcoded-database"
     description = "Hardcoded database credentials detected"
     severity = "high"
+    precedence = 60  # Configuration rules precedence
     meta = create_default_rule_meta(
         category="secrets",
         cwe_ids=["CWE-798"],
@@ -123,11 +154,11 @@ class HardcodedDatabaseRule:
 
     # Database connection patterns
     DATABASE_PATTERNS = {
-        "postgres_connection": r'postgres(ql)?://[^:]+:[^@]+@[^"\'\s]+',
-        "mysql_connection": r'mysql://[^:]+:[^@]+@[^"\'\s]+',
-        "mongodb_connection": r'mongodb(\+srv)?://[^:]+:[^@]+@[^"\'\s]+',
-        "redis_connection": r'redis://[^:]+:[^@]+@[^"\'\s]+',
-        "database_credential_block": r'host\s*[=:]\s*["\'][^"\']+["\']\s*,\s*port\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(user|username)\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(password|pass)\s*[=:]\s*["\'][^"\']+["\']',
+        "postgres_connection": r'\bpostgres(ql)?://[^:]+:[^@]+@[^"\'\s]+',
+        "mysql_connection": r'\bmysql://[^:]+:[^@]+@[^"\'\s]+',
+        "mongodb_connection": r'\bmongodb(\+srv)?://[^:]+:[^@]+@[^"\'\s]+',
+        "redis_connection": r'\bredis://[^:]+:[^@]+@[^"\'\s]+',
+        "database_credential_block": r'\bhost\s*[=:]\s*["\'][^"\']+["\']\s*,\s*port\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(user|username)\s*[=:]\s*["\'][^"\']+["\']\s*,\s*(password|pass)\s*[=:]\s*["\'][^"\']+["\']',
     }
 
     def __init__(self):

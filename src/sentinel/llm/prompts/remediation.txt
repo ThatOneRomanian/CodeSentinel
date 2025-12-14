@@ -6,11 +6,18 @@ File: {{file_path}}
 Line: {{line}}
 Excerpt: {{excerpt}}
 Language: {{language}}
+Category: {{category}}
+Tags: {{tags}}
 
 Provide:
 1. Step-by-step instructions to fix the issue
 2. Code examples or configuration changes (if applicable)
 3. Best practices to prevent recurrence
 4. Alternative secure approaches
+
+Additional Context:
+- Consider the specific provider/token type when recommending fixes
+- Test vs production keys may require different remediation strategies
+- Provider-specific security best practices should be highlighted
 
 Focus on actionable, practical advice that developers can implement immediately.

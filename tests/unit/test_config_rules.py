@@ -32,7 +32,8 @@ class TestHardcodedAPIRule:
         """
 
         findings = self.rule.apply(self.test_file, content)
-        assert len(findings) == 2
+        # Only the generic secret key should be detected (Stripe key is handled by secret rules)
+        assert len(findings) == 1
         assert all(f.rule_id == "hardcoded-api-key" for f in findings)
         assert all(f.severity == "high" for f in findings)
 
@@ -44,7 +45,8 @@ class TestHardcodedAPIRule:
         """
 
         findings = self.rule.apply(self.test_file, content)
-        assert len(findings) == 2
+        # Stripe keys are now handled by secret rules, so config rule defers
+        assert len(findings) == 0
 
     def test_detects_aws_keys(self):
         """Test that AWS access keys are detected."""
@@ -53,7 +55,8 @@ class TestHardcodedAPIRule:
         """
 
         findings = self.rule.apply(self.test_file, content)
-        assert len(findings) == 1
+        # AWS keys are now handled by secret rules, so config rule defers
+        assert len(findings) == 0
 
     def test_detects_github_tokens(self):
         """Test that GitHub tokens are detected."""
@@ -62,7 +65,8 @@ class TestHardcodedAPIRule:
         """
 
         findings = self.rule.apply(self.test_file, content)
-        assert len(findings) == 1
+        # GitHub tokens are now handled by secret rules, so config rule defers
+        assert len(findings) == 0
 
     def test_detects_slack_tokens(self):
         """Test that Slack tokens are detected."""
@@ -71,7 +75,8 @@ class TestHardcodedAPIRule:
         """
 
         findings = self.rule.apply(self.test_file, content)
-        assert len(findings) == 1
+        # Slack tokens are now handled by secret rules, so config rule defers
+        assert len(findings) == 0
 
     def test_ignores_short_values(self):
         """Test that short values are ignored."""

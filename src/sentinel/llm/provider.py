@@ -4,15 +4,15 @@ LLM Provider abstraction layer for CodeSentinel Phase 2.
 Provides a unified interface for different LLM providers with placeholder
 implementations during the bootstrap phase.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import os
 import json
 import time
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -220,3 +220,13 @@ def get_provider(provider_name: str) -> LLMProvider:
         raise ValueError(f"Unknown provider: {provider_name}. Available: {list(providers.keys())}")
     
     return providers[provider_name]
+
+
+def get_available_providers() -> List[str]:
+    """
+    Get list of available AI providers.
+    
+    Returns:
+        List of provider names that are available
+    """
+    return ["deepseek", "openai", "local_ollama"]

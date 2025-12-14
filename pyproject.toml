@@ -1,7 +1,7 @@
 # CodeSentinel Project Configuration
 #
-# © 2025 Andrei Antonescu. All rights reserved.
-# Proprietary – not licensed for public redistribution.
+# Copyright (c) 2025 Andrei Antonescu
+# SPDX-License-Identifier: MIT
 
 [build-system]
 requires = ["setuptools>=45", "wheel"]
@@ -15,12 +15,12 @@ readme = "README.md"
 authors = [
     {name = "Andrei Antonescu", email = "antonesc@sheridancollege.ca"},
 ]
-license = {text = "Proprietary"}
+license = {text = "MIT"}
 keywords = ["security", "scanner", "secrets", "cli", "local-first"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -33,6 +33,7 @@ classifiers = [
 
 dependencies = [
     # Phase 1 is dependency-free - no external runtime dependencies
+    "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -46,10 +47,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ThatOneRomanian/codesentinel"
-Documentation = "https://docs.codesentinel.dev"
-Repository = "https://github.com/ThatOneRomanian/codesentinel"
-Issues = "https://github.com/ThatOneRomanian/codesentinel/issues"
+Homepage = "https://github.com/AndreiAntonescu/codesentinel"
+Documentation = "https://github.com/AndreiAntonescu/codesentinel/tree/main/docs"
+Repository = "https://github.com/AndreiAntonescu/codesentinel"
+Issues = "https://github.com/AndreiAntonescu/codesentinel/issues"
 
 [project.scripts]
 codesentinel = "sentinel.cli.main:main"

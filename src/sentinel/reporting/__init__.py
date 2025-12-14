@@ -3,8 +3,8 @@ Reporting module for CodeSentinel.
 
 Contains report generation components for security scan results.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from sentinel.reporting.json_report import generate_json_report

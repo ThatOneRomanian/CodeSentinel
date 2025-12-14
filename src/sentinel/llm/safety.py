@@ -4,8 +4,8 @@ AI Safety Layer for CodeSentinel Phase 2.
 Provides security and privacy protections for AI explanations, including
 input sanitization, data filtering, and content safety controls.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import re

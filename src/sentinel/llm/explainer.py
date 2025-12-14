@@ -4,8 +4,8 @@ Explanation Engine for CodeSentinel Phase 2 AI Explainer Mode.
 Provides AI-powered security explanations, CWE mapping, and remediation guidance
 without modifying the core scanning logic.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib
@@ -74,6 +74,13 @@ class ExplanationEngine:
         # Get language if available, otherwise "unknown"
         language = getattr(finding, 'language', 'unknown') or 'unknown'
         
+        # Get category if available, otherwise "unknown"
+        category = getattr(finding, 'category', 'unknown') or 'unknown'
+        
+        # Get tags if available, otherwise empty list
+        tags = getattr(finding, 'tags', []) or []
+        tags_str = ', '.join(tags) if tags else 'none'
+        
         # Handle optional excerpt field and apply safety processing
         excerpt = finding.excerpt or "No excerpt available"
         safe_excerpt = self.safety_layer.process_for_ai(excerpt)
@@ -85,6 +92,8 @@ class ExplanationEngine:
         populated = populated.replace("{{line}}", str(finding.line))
         populated = populated.replace("{{excerpt}}", safe_excerpt)
         populated = populated.replace("{{language}}", language)
+        populated = populated.replace("{{category}}", category)
+        populated = populated.replace("{{tags}}", tags_str)
         
         return populated
     
@@ -280,15 +289,15 @@ class ExplanationEngine:
                 ],
             }
             
-            # Validate and fix the response
-            validated_data = self.validator.validate_and_fix(response_data, enable_fallback=True)
+            # Validate and fix the response - use rule_id as finding_id
+            validated_data = self.validator.validate_and_fix(response_data, finding.rule_id)
             
             return validated_data
             
         except Exception as e:
             # If LLM calls fail, return fallback explanation
             print(f"Warning: LLM template processing failed: {e}")
-            return create_fallback_explanation(finding)
+            return create_fallback_explanation(finding.rule_id, [str(e)])
     
     def explain_batch(self, findings: List[Finding], provider: LLMProvider) -> Dict[str, Dict[str, Union[str, None, float, List[str]]]]:
         """

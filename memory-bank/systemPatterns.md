@@ -55,9 +55,9 @@ It is optional, but recommended to be updated as the project evolves.
 
 ## Process Patterns
 
-* **Private Git Repository**: Using private Git repository for development with proper .gitignore for Python + VS Code
+* **Public GitHub Repository**: Using public GitHub repository with proper .gitignore for Python + VS Code
 * **Memory-Bank Driven Development**: Using memory-bank pattern for persistent project context and decision tracking
-* **Private Development Workflow**: Internal development only, with proprietary licensing during development phase
+* **Open-Source Development Workflow**: Community-driven development with MIT licensing and public contributions
 2025-11-27 05:21:00 - Rule Engine abstraction pattern implemented: Plugin-style rule system using dynamic module discovery and Rule protocol. RuleLoader discovers and validates rule modules at runtime, enabling extensible security scanning without hardcoded dependencies. Error handling isolates rule failures to maintain engine stability.
 2025-11-27 05:57:00 - Enhanced Rule Engine testing pattern: Implemented inline mock rule definitions in unit tests to avoid import dependencies and package structure issues. This pattern enables robust testing of plugin architectures without requiring test packages to be installed, improving test isolation and reliability.
 2025-11-27 06:31:00 - Standardized rule structure pattern implemented: All rules follow consistent Rule protocol with id, description, severity attributes and apply method. Rule modules export rule instances for dynamic loading. Comprehensive unit testing pattern established with 60/60 passing tests covering all rule types and edge cases.
@@ -130,9 +130,9 @@ It is optional, but recommended to be updated as the project evolves.
 
 ## Copyright and Licensing Patterns
 
-* **Proprietary Header Format**: All source files include: "© 2025 Andrei Antonescu. All rights reserved. Proprietary – not licensed for public redistribution."
+* **MIT License Header Format**: All source files include standard MIT license header with copyright attribution
 * **File Header Placement**: Copyright headers placed at top of file, before module docstring
-* **Consistent Licensing**: Maintain proprietary status during development phase with future licensing decisions pending
+* **Consistent Licensing**: Maintain MIT open-source licensing across all project components and contributions
 
 2025-11-27 08:56:00 - Repository consistency, code quality, and copyright patterns established.
 [2025-11-27 09:27:44] - Pattern: Future-Proofing Architecture - Extensible dataclass design with optional fields for backward compatibility while enabling new features.
@@ -295,3 +295,229 @@ It is optional, but recommended to be updated as the project evolves.
 - **Usage:** Maintain project context across development phases and team transitions
 - **Benefits:** Persistent project knowledge, accurate historical record, and smooth phase transitions
 - **Benefits:** Persistent project knowledge, better collaboration, and informed decision-making
+## [2025-11-29 02:56:00] - Phase 3 API Freeze Patterns
+
+**Pattern: Frozen API Contract Design**
+- **Description:** Establish a stable, forward-compatible API surface that wraps existing backend functionality without breaking changes
+- **Implementation:** [`ScanService`](api-freeze-spec.md:185) class with frozen method signatures, optional parameters for new features, and semantic versioning guarantees
+- **Usage:** GUI integration layer communicates exclusively through the frozen API contract
+- **Benefits:** Stable interface for GUI development, backward compatibility, future-proof design
+
+**Pattern: Enhanced Finding Data Model**
+- **Description:** Extend basic finding structure with GUI-specific metadata while maintaining backward compatibility
+- **Implementation:** [`EnhancedFinding`](api-freeze-spec.md:67) dataclass with optional fields for AI explanations, code context, resolution tracking, and user notes
+- **Usage:** All findings processed through the API are converted to enhanced format with GUI-optimized metadata
+- **Benefits:** Rich display capabilities, user interaction tracking, persistent state management
+
+**Pattern: Real-time Event Streaming**
+- **Description:** Progressive result delivery through event-based streaming for large scans
+- **Implementation:** [`ScanEvent`](api-freeze-spec.md:397) system with WebSocket-compatible event types and structured payloads
+- **Usage:** GUI receives live updates during scanning including progress, findings, and completion events
+- **Benefits:** Responsive user experience, memory efficiency for large result sets, cancellation support
+
+**Pattern: Graceful Error Hierarchy**
+- **Description:** Structured error handling with user-friendly messages and consistent error codes
+- **Implementation:** [`CodeSentinelError`](api-freeze-spec.md:445) base class with specialized subclasses for different failure scenarios
+- **Usage:** All API operations raise specific error types with actionable error messages
+- **Benefits:** Consistent error handling, detailed debugging information, user-friendly error reporting
+
+**Pattern: Shared Configuration Model**
+- **Description:** Unified configuration system for both GUI and CLI with synchronized persistence
+- **Implementation:** [`SharedConfig`](api-freeze-spec.md:702) dataclass with platform-specific storage and synchronization mechanisms
+- **Usage:** Both GUI and CLI read/write from the same configuration store with conflict resolution
+- **Benefits:** Consistent user experience, configuration synchronization, reduced duplication
+
+**Pattern: AI Safety Controller**
+- **Description:** Centralized safety controls for AI operations with privacy and security guarantees
+- **Implementation:** [`AISafetyController`](api-freeze-spec.md:619) with input validation, content sanitization, and environment safety checks
+- **Usage:** All AI operations pass through safety layer before reaching external providers
+- **Benefits:** Privacy protection, prompt injection prevention, graceful degradation
+
+**Pattern: Backend Module Wrapping**
+- **Description:** Transparent wrapping of existing backend functions with enhanced error handling and progress tracking
+- **Implementation:** [`ScanServiceImplementation`](api-freeze-spec.md:518) wraps [`walk_directory()`](src/sentinel/scanner/walker.py:36), [`run_rules()`](src/sentinel/scanner/engine.py:271), and [`ExplanationEngine`](src/sentinel/llm/explainer.py:20)
+- **Usage:** Internal backend functions are called through API wrapper layer with added functionality
+- **Benefits:** Zero breaking changes to existing code, enhanced functionality, consistent error handling
+## Dogfooding Automation Patterns
+
+### Automated Dogfooding Runner
+- **Location**: [`tools/dogfood_runner.py`](tools/dogfood_runner.py) (planned)
+- **Design**: Standard library only, dependency-free implementation
+- **Purpose**: Automate systematic testing of CodeSentinel across multiple scenarios
+- **Architecture**: Scenario-based execution with comprehensive logging and error handling
+
+### Scenario Matrix Pattern
+- **Core Scenarios**: 5 scenarios from dogfooding-experiment-plan.md
+- **Additional Scenarios**: 2 extra scenarios for enhanced coverage
+- **AI Integration**: Conditional AI scenario execution based on API key availability
+- **Output Structure**: Consistent directory hierarchy with timestamp-based organization
+
+### Error Handling Pattern
+- **Isolation**: Independent scenario execution with no cross-scenario dependencies
+- **Graceful Failure**: Continue execution on individual scenario failures
+- **Timeout Protection**: Configurable timeouts per scenario
+- **Validation**: Pre-execution environment validation and dependency checking
+
+### Output Organization Pattern
+- **Structured Output**: Consistent directory structure across all runs
+- **Metadata Tracking**: Comprehensive run metadata and configuration
+- **Logging**: Detailed execution logs with timestamps and performance metrics
+- **Summary Generation**: Automated summary reports with findings analysis
+
+2025-11-29 04:16:00 - Added dogfooding automation patterns for automated testing runner
+## 2025-11-29 06:55:47 - Robust JSON Extraction Pattern
+
+**Pattern:** Advanced JSON extraction with brace counting and string escape handling for log-contaminated output
+
+**Context:** Command-line tools often output log messages before JSON data, breaking simple JSON parsing. This pattern provides resilience for subprocess integration.
+
+**Implementation:**
+```python
+def _extract_json_from_output(output: str) -> str:
+    """Extract JSON from output that may contain log messages."""
+    brace_count = 0
+    in_string = False
+    escape_next = False
+    json_start = -1
+    
+    for i, char in enumerate(output):
+        if escape_next:
+            escape_next = False
+            continue
+            
+        if char == '\\' and in_string:
+            escape_next = True
+            continue
+            
+        if char == '"' and not escape_next:
+            in_string = not in_string
+            
+        if not in_string:
+            if char == '{':
+                if brace_count == 0:
+                    json_start = i
+                brace_count += 1
+            elif char == '}':
+                brace_count -= 1
+                if brace_count == 0 and json_start != -1:
+                    return output[json_start:i+1]
+    
+    return output  # Fallback to original if no complete JSON found
+```
+
+**Key Features:**
+- Handles log message prefixes and suffixes
+- Respects string literals to avoid false brace counting
+- Manages escape sequences within strings
+- Graceful degradation for malformed JSON
+
+**Usage:**
+- Subprocess command output parsing
+- CLI tool integration
+- Automated testing frameworks
+- Log analysis with structured data output
+
+**Benefits:**
+- Resilient to tool output variations
+- Maintains data integrity
+- Provides accurate structured data extraction
+- Enables reliable automation pipelines
+## [2025-11-30 17:05:00] - Phase 2.5 Rule Hardening Patterns
+
+**Pattern: Provider-Aware Token Classification**
+- **Description:** Systematically classify security tokens by provider and type for intelligent deduplication
+- **Implementation:** [`token_types.py`](src/sentinel/rules/token_types.py) module with provider classification (AWS, Azure, GCP, Stripe, generic, OAuth, high-entropy)
+- **Usage:** Rule engine uses classification to determine precedence during deduplication
+- **Benefits:** 67.8% duplicate reduction, resolved Azure rule over-matching, enhanced accuracy
+
+**Pattern: Precedence-Based Deduplication**
+- **Description:** Use hierarchical precedence model to select highest-quality findings during deduplication
+- **Implementation:** Precedence scores: provider-specific (100) > OAuth tokens (90) > generic API keys (80) > high-entropy strings (70) > configuration rules (60)
+- **Usage:** Rule engine groups findings by token and preserves highest-precedence finding
+- **Benefits:** Eliminates duplicate reporting while preserving most relevant findings
+
+**Pattern: Token Grouping by Normalized Content**
+- **Description:** Group findings by file context, line position, and normalized token content for precise deduplication
+- **Implementation:** Grouping key: (file_path, line_number, normalized_excerpt) with O(n) complexity algorithm
+- **Usage:** Deduplication engine identifies identical tokens across different rules
+- **Benefits:** Accurate duplicate detection, handles partial obfuscation and token variations
+
+**Pattern: Backward-Compatible Rule Enhancement**
+- **Description:** Add advanced capabilities to rule engine without breaking existing API or functionality
+- **Implementation:** Additive architecture with optional deduplication, preserved API signatures, enhanced finding data without structural changes
+- **Usage:** Existing integrations continue working while gaining improved accuracy
+- **Benefits:** Zero breaking changes, smooth upgrade path, production-ready stability
+
+**Pattern: Quantitative Rule Validation**
+- **Description:** Use empirical data and dogfooding to validate rule improvements and quantify results
+- **Implementation:** Automated dogfooding with 7-scenario matrix, accurate findings counting, performance tracking
+- **Usage:** Systematic validation of 67.8% duplicate reduction and performance consistency
+- **Benefits:** Empirical confidence in improvements, quality assurance, foundation for regression testing
+
+**Pattern: Rule Collision Resolution**
+- **Description:** Systematically resolve cases where single tokens trigger multiple rules through provider-aware classification
+- **Implementation:** Identify 12 high-collision tokens, apply precedence model to select single most relevant finding
+- **Usage:** Rule engine handles complex token collisions without user intervention
+- **Benefits:** Reduced noise, improved user experience, more actionable security findings
+
+**Pattern: Enhanced Detection with Partial Obfuscation Handling**
+- **Description:** Improve detection of partially obfuscated tokens like JWT and PEM through enhanced pattern matching
+- **Implementation:** Extended regex patterns with edge case handling, improved false positive reduction
+- **Usage:** All secret detection rules benefit from enhanced pattern recognition
+- **Benefits:** Better detection of real security issues, reduced false negatives
+
+**Pattern: Comprehensive Deduplication Testing**
+- **Description:** Extensive test coverage for deduplication logic covering all edge cases and scenarios
+- **Implementation:** [`test_deduplication.py`](tests/unit/test_deduplication.py) with 590 lines covering precedence, grouping, edge cases, and performance
+- **Usage:** Automated validation of deduplication accuracy and performance
+- **Benefits:** Production-ready confidence, comprehensive edge case coverage, regression protection
+## [2025-12-01 03:12:03] - Phase 2.7 Rule Expansion Patterns
+
+**Pattern: Specialized Misconfiguration Precedence**
+- **Description:** Establishment of a new precedence level for structure-aware configuration rules to sit hierarchically between generic secrets and basic config rules.
+- **Implementation:** Precedence score set at **65** for rules in the GHA, DOC, JSC, and TFC rule packs.
+- **Usage:** Ensures high visibility for critical misconfigurations that require language context.
+- **Benefits:** Accurate prioritization and deduplication across different finding types.
+
+**Pattern: Structure-Aware Rule Scanning Requirement**
+- **Description:** Introduction of rules that require structural context (e.g., YAML nesting, Dockerfile instruction block, HCL resource context) rather than purely regex-based detection.
+- **Implementation:** Phase 2.7 development must incorporate or utilize parsing mechanisms (e.g., lightweight YAML/JSON/HCL parsing) for targeted file types to reduce false positives and improve accuracy in configuration rules.
+- **Usage:** Applied to files like `Dockerfile`, `.github/workflows/*.yml`, `package.json`, and `*.tf`.
+- **Benefits:** Enables effective detection of IaC, CI/CD, and Supply Chain security flaws that plaintext matching misses.
+## [2025-12-14 00:30:00] - Open-Source Community Contribution Patterns
+
+**Pattern: Fork-and-PR Contribution Model**
+- **Description:** Standard GitHub fork, branch, and pull request workflow for community contributions
+- **Implementation:** Contributors fork repository, make changes in feature branches, and submit PRs
+- **Usage:** All external contributions follow this model to ensure proper review and integration
+- **Benefits:** Clear contribution path, isolated development, quality control through reviews
+
+**Pattern: Community Rule Pack Development**
+- **Description:** Dedicated process for community-contributed security rule packs
+- **Implementation:** Template-based rule pack creation with standardized documentation and tests
+- **Usage:** Security researchers and community members extend scanning capabilities
+- **Benefits:** Expanded detection coverage, specialized expertise, community ownership
+
+**Pattern: Transparent Issue Tracking**
+- **Description:** All development planning and bug tracking in public GitHub issues
+- **Implementation:** Categorized issue templates for bugs, features, and rule suggestions
+- **Usage:** Users report issues, request features, and track development progress openly
+- **Benefits:** Community prioritization, transparent roadmap, shared problem-solving
+
+**Pattern: Governance Through Code Owners**
+- **Description:** Defined areas of responsibility through GitHub CODEOWNERS file
+- **Implementation:** Core components assigned to maintainers with review requirements
+- **Usage:** PRs automatically request reviews from appropriate code owners
+- **Benefits:** Consistent quality control, expertise-based reviews, clear responsibility
+
+**Pattern: Community Documentation Contributions**
+- **Description:** Wiki-style contribution system for documentation improvements
+- **Implementation:** Documentation in Markdown format with simplified PR process
+- **Usage:** Users improve documentation based on their experiences and needs
+- **Benefits:** Better documentation quality, reduced maintainer burden, community perspective
+
+**Pattern: Versioned Releases with Changelog**
+- **Description:** Regular versioned releases with comprehensive changelogs
+- **Implementation:** Semantic versioning with GitHub Releases feature
+- **Usage:** Users and tools reference specific versions with clear upgrade paths
+- **Benefits:** Stability for users, clear communication of changes, dependency management

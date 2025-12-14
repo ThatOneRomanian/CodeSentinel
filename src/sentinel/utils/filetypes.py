@@ -4,8 +4,8 @@ Language detection utilities for CodeSentinel.
 Provides lightweight file type detection based on file extensions for
 Phase 2+ extensibility and rule applicability filtering.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import pathlib

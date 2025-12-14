@@ -4,8 +4,8 @@ Base classes and data structures for CodeSentinel rules.
 Defines the Rule protocol and Finding data structure used by all security
 rules in the system according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from abc import ABC, abstractmethod
@@ -82,6 +82,7 @@ class Finding:
         language: Programming language of the file where finding was detected
         risk_score: Numeric risk assessment score (1-10) for prioritization
         references: List of reference URLs (CWE pages, documentation, etc.)
+        rule_precedence: Numeric precedence level (1-100) for deduplication
     """
 
     rule_id: str
@@ -112,6 +113,9 @@ class Finding:
     
     references: Optional[List[str]] = None
     """List of reference URLs to CWE pages, documentation, or other supporting materials."""
+
+    rule_precedence: Optional[int] = None
+    """Numeric precedence level (1-100) for deduplication and conflict resolution."""
 
 
 class Rule(Protocol):

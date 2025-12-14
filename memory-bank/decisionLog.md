@@ -60,18 +60,19 @@ Adopt the standardized project structure as defined in phase1-spec.md for Phase 
 
 2025-11-27 01:44:00 - Phase 1 project skeleton completed and validated.
 
-## Decision
+## Decision (Historical)
 
-CodeSentinel is currently proprietary, developed privately, and future pricing/licensing will be determined later.
+~~CodeSentinel is currently proprietary, developed privately, and future pricing/licensing will be determined later.~~
+> Note: This decision was superseded by the MIT license decision on 2025-12-14.
 
-## Rationale
+## Rationale (Historical)
 
-* Project is in early development phase
-* Business model for potential public release is undecided
-* Maintains flexibility for future licensing decisions
-* Aligns with private development status
+* Project was in early development phase
+* Business model for potential public release was undecided
+* Maintained flexibility for future licensing decisions
+* Aligned with private development status at the time
 
-## Implementation Details
+## Implementation Details (Historical)
 
 * Updated README.md to remove "free to use" messaging
 * Changed license statement to proprietary
@@ -256,14 +257,14 @@ Enforce strict code quality standards and copyright headers across all source fi
 ## Rationale
 
 * Professional codebase requires consistent documentation and licensing
-* Copyright protection essential for proprietary software
+* Copyright attribution maintained while enabling open-source collaboration
 * Code quality standards prevent technical debt accumulation
 * Consistent formatting improves maintainability and collaboration
 * Preparation for potential open-source release or commercial licensing
 
 ## Implementation Details
 
-* Added copyright header to all Python files: "© 2025 Andrei Antonescu. All rights reserved. Proprietary – not licensed for public redistribution."
+* Updated copyright headers in all Python files from proprietary to MIT license format
 * Enforced Google-style docstrings for all public functions
 * Applied consistent type hints and absolute imports
 * Removed debug prints and replaced with proper logging
@@ -409,3 +410,238 @@ Enforce strict code quality standards and copyright headers across all source fi
 - **Implementation:** Updated all memory bank files (activeContext.md, progress.md, decisionLog.md, systemPatterns.md) with Phase 2 finalization status and decisions
 - **Benefits:** Persistent project context, accurate historical record, preparation for Phase 3 development
 - **Benefits:** Zero breaking changes, smooth transition for existing users and future development
+## [2025-11-29 02:56:00] - Phase 3 API Freeze Architecture Decisions
+
+**Decision:** Implement frozen API contract with strict backward compatibility guarantees
+- **Rationale:** Provide stable interface for GUI development while maintaining existing CLI functionality without breaking changes
+- **Implementation:** Created [`ScanService`](api-freeze-spec.md:185) class with frozen method signatures, optional parameters for new features, and semantic versioning enforcement
+- **Benefits:** Stable GUI integration, zero breaking changes for CLI users, future-proof design
+
+**Decision:** Extend Finding data model with GUI-specific metadata while maintaining backward compatibility
+- **Rationale:** GUI requires richer metadata for display, interaction, and state management beyond basic security findings
+- **Implementation:** [`EnhancedFinding`](api-freeze-spec.md:67) dataclass with optional fields for AI explanations, code context, resolution tracking, and user notes
+- **Benefits:** Rich GUI display capabilities, persistent user state, enhanced user experience without breaking existing functionality
+
+**Decision:** Implement real-time event streaming for progressive result delivery
+- **Rationale:** Large scans require responsive progress updates and immediate finding display for good user experience
+- **Implementation:** [`ScanEvent`](api-freeze-spec.md:397) system with WebSocket-compatible events and structured payloads for progress, findings, and completion
+- **Benefits:** Responsive UI during long scans, memory efficiency, cancellation support, better user engagement
+
+**Decision:** Create comprehensive error hierarchy with consistent error codes
+- **Rationale:** GUI requires structured error handling with user-friendly messages and consistent error reporting
+- **Implementation:** [`CodeSentinelError`](api-freeze-spec.md:445) base class with specialized subclasses and standardized error codes for all failure scenarios
+- **Benefits:** Consistent error handling, actionable error messages, detailed debugging information, improved user experience
+
+**Decision:** Design shared configuration model for GUI and CLI synchronization
+- **Rationale:** Users expect consistent behavior and settings between GUI and CLI interfaces
+- **Implementation:** [`SharedConfig`](api-freeze-spec.md:702) dataclass with platform-specific persistence and conflict resolution mechanisms
+- **Benefits:** Unified user experience, configuration synchronization, reduced duplication, easier maintenance
+
+**Decision:** Implement AI safety controller with privacy and security guarantees
+- **Rationale:** AI operations require robust safety controls to prevent data exposure and ensure secure operation
+- **Implementation:** [`AISafetyController`](api-freeze-spec.md:619) with input validation, content sanitization, and environment safety checks
+- **Benefits:** Privacy protection, prompt injection prevention, graceful degradation, regulatory compliance
+
+**Decision:** Use transparent backend module wrapping with enhanced functionality
+- **Rationale:** Leverage existing backend functionality without modifications while adding GUI-specific enhancements
+- **Implementation:** [`ScanServiceImplementation`](api-freeze-spec.md:518) wraps existing functions like [`walk_directory()`](src/sentinel/scanner/walker.py:36) and [`run_rules()`](src/sentinel/scanner/engine.py:271) with error handling and progress tracking
+- **Benefits:** Zero breaking changes, enhanced functionality, consistent error handling, maintainable codebase
+## Decision: Automated Dogfooding Runner Architecture
+
+**Decision**: Implement a dependency-free dogfooding runner using only Python standard library with scenario-based execution and comprehensive logging.
+
+**Rationale**: 
+- Enables systematic validation of CodeSentinel v0.2.0 performance and quality
+- Supports the dogfooding experiment plan requirements without adding external dependencies
+- Provides structured output for analysis and comparison across multiple runs
+- Maintains local-first philosophy with optional AI scenario support
+- Facilitates Phase 3 GUI development planning with empirical data
+
+**Implementation Details**:
+- Location: [`tools/dogfood_runner.py`](tools/dogfood_runner.py)
+- Dependencies: Standard library only (argparse, pathlib, subprocess, time, json, etc.)
+- Scenarios: 5 core scenarios from dogfooding-experiment-plan.md + 2 additional scenarios
+- Output: Structured directory hierarchy with timestamps, metadata, and comprehensive logging
+- Error Handling: Graceful failure with scenario isolation and timeout protection
+- Integration: Adds `dogfood-results/` to .gitignore and updates documentation
+
+2025-11-29 04:16:00 - Implemented automated dogfooding runner design for systematic CodeSentinel validation
+## 2025-11-29 06:55:30 - Dogfooding Runner JSON Parsing Architecture
+
+**Decision:** Implemented robust JSON extraction with brace counting and multi-strategy findings counting for dogfooding runner.
+
+**Context:** The dogfooding runner was incorrectly reporting 0 findings due to JSON parsing failures caused by log messages in codesentinel output. This required a robust solution that could handle log-contaminated output and various JSON structures.
+
+**Options Considered:**
+1. **Simple JSON.loads()** - Failed due to log message prefixes
+2. **Regex-based extraction** - Too fragile for nested JSON structures  
+3. **Brace counting with string escape handling** - Chosen solution
+
+**Rationale:**
+The brace counting approach provides:
+- Resilience to log message prefixes and suffixes
+- Proper handling of nested JSON structures
+- String escape sequence awareness to avoid false brace counting
+- Graceful degradation when JSON is malformed
+
+**Implementation Details:**
+- Enhanced `_extract_json_from_output()` with state machine for brace counting
+- Multi-strategy counting: findings array, scan_summary, results array, top-level arrays
+- Added `--debug-findings` flag for validation and comparison
+- Comprehensive test coverage for edge cases
+
+**Implications:**
+- Dogfooding runner now provides accurate findings counts (152 in sample project)
+- Enables reliable automated testing and performance regression detection
+- Foundation for Phase 3 GUI integration and real-world repository validation
+## 2025-11-30 02:48:45 - Phase 4 Finding Deduplication Implementation Complete
+
+**Decision:** Implemented comprehensive finding deduplication logic in the rule engine to prevent multiple findings for the same token while maintaining precedence rules.
+
+**Rationale:** 
+- Phase 1 analysis identified 12 tokens triggering 3+ rules, causing excessive duplicate findings
+- Current system lacked deduplication, causing noise in outputs and inflated finding counts
+- Needed to implement provider-aware precedence to resolve rule collisions identified in Phase 2.5
+
+**Implementation Details:**
+- Extended [`run_rules()`](src/sentinel/scanner/engine.py:471) method to include deduplication via [`_deduplicate_findings()`](src/sentinel/scanner/engine.py:369)
+- Implemented precedence model: provider-specific tokens (100) > OAuth tokens (90) > generic API keys (80) > high-entropy strings (70) > configuration rules (60)
+- Used grouping key: (file_path, line_number, normalized_excerpt) for finding grouping
+- Created comprehensive test suite ([`tests/unit/test_deduplication.py`](tests/unit/test_deduplication.py)) with 590 lines covering all scenarios
+- Maintained full API stability and backward compatibility
+
+**Benefits:**
+- Reduced sample project findings from 152+ (with duplicates) to 50 unique findings
+- Eliminated duplicate reporting for same tokens across multiple rules
+- Preserved highest-precedence findings while removing redundant ones
+- Maintained zero breaking changes to existing API and functionality
+## [2025-11-30 17:01:00] - Phase 2.5 Rule Hardening Architecture Decisions
+
+**Decision:** Implement provider-aware token classification system for intelligent deduplication
+
+**Rationale:**
+- Identified rule collisions where 12 tokens triggered 3+ rules, causing excessive duplicate findings
+- Needed systematic approach to classify tokens by provider and type for intelligent deduplication
+- Required precedence model to ensure highest-quality findings are preserved during deduplication
+
+**Implementation Details:**
+- Created [`token_types.py`](src/sentinel/rules/token_types.py) module with comprehensive token classification
+- Implemented provider-specific classification (AWS, Azure, GCP, Stripe, generic, OAuth, high-entropy)
+- Established precedence scoring: provider-specific (100) > OAuth tokens (90) > generic API keys (80) > high-entropy strings (70) > configuration rules (60)
+- Integrated classification with existing rule system without breaking changes
+
+**Benefits:**
+- 67.8% duplicate reduction in sample project (152+ findings → 49 findings)
+- Resolved Azure rule over-matching through provider-aware classification
+- Maintained zero breaking changes to existing API and functionality
+- Enhanced accuracy through intelligent precedence-based selection
+
+**Decision:** Implement advanced deduplication with grouping by normalized token content
+
+**Rationale:**
+- Simple rule-based deduplication insufficient for complex token collisions
+- Needed grouping mechanism that considers file context, line position, and normalized token content
+- Required robust algorithm to handle edge cases while maintaining performance
+
+**Implementation Details:**
+- Enhanced Rule Engine with [`_deduplicate_findings()`](src/sentinel/scanner/engine.py:369) method
+- Grouping key: (file_path, line_number, normalized_excerpt) for precise finding grouping
+- O(n) complexity algorithm for efficient processing of large finding sets
+- Comprehensive test coverage with 590 lines in [`test_deduplication.py`](tests/unit/test_deduplication.py)
+
+**Benefits:**
+- Eliminated duplicate reporting for same tokens across multiple rules
+- Preserved highest-precedence findings while removing redundant ones
+- Maintained performance consistency with enhanced accuracy
+- Handled edge cases including partial obfuscation and token variations
+
+**Decision:** Maintain full backward compatibility while enhancing rule engine capabilities
+
+**Rationale:**
+- Existing users and integrations depend on stable API behavior
+- Phase 3 GUI development requires frozen API surface
+- Zero breaking changes essential for production deployment confidence
+
+**Implementation Details:**
+- Additive architecture: deduplication added as optional enhancement to existing flow
+- Preserved all existing API signatures and data structures
+- Enhanced finding data without modifying core structure
+- Comprehensive test suite ensures backward compatibility (236/236 tests passing)
+
+**Benefits:**
+- Zero breaking changes to existing CLI, scanning, and reporting functionality
+- Smooth upgrade path for existing deployments
+- Enhanced capabilities without requiring user configuration changes
+- Production-ready stability with improved accuracy
+
+**Decision:** Implement comprehensive dogfooding validation for rule hardening
+
+**Rationale:**
+- Required empirical validation of quantitative improvements
+- Needed systematic testing across multiple scenarios and configurations
+- Essential for confidence in production deployment
+
+**Implementation Details:**
+- Enhanced dogfooding runner with accurate findings counting (67.8% reduction validated)
+- 7-scenario matrix covering all output formats and AI configurations
+- Automated performance and accuracy validation
+- Structured output for comparison across runs
+
+**Benefits:**
+- Empirical validation of 67.8% duplicate reduction
+- Performance consistency verification
+- Quality assurance for production deployment
+- Foundation for future regression testing
+## [2025-12-01 03:11:58] - Phase 2.7 Rule Pack Prioritization and Precedence Decision
+ 
+**Decision:** Prioritize the development of four new, structure-aware rule packs (GitHub Actions, Dockerfile, JS Supply Chain, Terraform) for Phase 2.7.
+ 
+**Rationale:**
+- Phase 2.6 validation revealed critical functional blindspots in IaC, CI/CD, and SSC domains.
+- Existing generic rules are insufficient for complex configuration misconfigurations requiring language/structure awareness (YAML, Dockerfile, HCL, JSON).
+- Addressing these gaps is essential for CodeSentinel's transition from a secret scanner to a comprehensive security analysis tool.
+ 
+**Implementation Details:**
+- Defined 8 specific rules across the four new packs.
+- Established a new `Specialized Misconfiguration` precedence level (65) for these rules, positioning them above generic configuration rules (60) but below generic high-entropy secrets (70) to ensure accurate deduplication and prioritization.
+- This mandates a shift in scanning engine capability towards structure parsing in Phase 2.7 implementation.
+## [2025-12-01 04:26:00] - Phase 2.7 Implementation Decisions
+
+**Decision:** Implemented lightweight, dependency-free structure-aware parsing utilities (YAML, Dockerfile, HCL).
+- **Rationale:** Necessary to support the new structure-aware rule packs (GHA, Docker, Terraform) without adding external project dependencies (PyYAML, python-hcl), maintaining the project's local-first philosophy.
+- **Implementation Details:** Created [`src/sentinel/utils/parsers.py`](src/sentinel/utils/parsers.py) using `re` and `json` for simplified structural analysis.
+
+**Decision:** Implemented Phase 2.7 specialized misconfiguration rule packs and integrated them into the Rule Engine.
+- **Rationale:** To address critical blindspots identified in Phase 2.6 (IaC, CI/CD, SSC) and move CodeSentinel toward comprehensive security analysis.
+- **Implementation Details:** Created four new rule packs (`docker/`, `gh_actions/`, `js_supply_chain/`, `terraform/`) using the defined precedence level of 65. Updated [`src/sentinel/rules/base.py`](src/sentinel/rules/base.py:115) to include `rule_precedence` in the `Finding` dataclass, and updated [`src/sentinel/scanner/engine.py`](src/sentinel/scanner/engine.py:272) to process this new field. All rules were implemented based on the [`phase2.7-rule-pack-design.md`](phase2.7-rule-pack-design.md) specification and passed respective unit tests.
+[2025-12-01 05:36:00] - Decision: Implemented Phase 2.7 specialized misconfiguration rule packs and structure-aware parsers (Docker, GitHub Actions, JS package, Terraform) plus PyYAML dependency, ensuring precedence 65 and parser-powered context for each rule. Rationale: Address Phase 2.6 gap analysis, preserve backward compatibility, and support new dogfooding targets.
+
+## [2025-12-14 00:30:00] - Decision: Transition to MIT Open-Source License
+
+**Decision:** Transition CodeSentinel from proprietary software to MIT open-source license.
+
+**Date:** December 14, 2025
+
+**Rationale:**
+- Enable community feedback and contributions to improve the project
+- Create a sustainable development model with broader participation
+- Align with local-first values by giving users complete freedom and transparency
+- Increase adoption by removing licensing barriers
+- Build trust through transparent security tooling
+
+**Impact:**
+- Opens project to community contributions and improvements
+- Increases transparency in the security scanning process
+- Allows wider adoption in both commercial and non-commercial contexts
+- Creates potential for community-driven rule packs
+- Establishes foundation for open governance model
+- Shifts focus from proprietary business model to community-driven development
+
+**Implementation Details:**
+- Updated LICENSE file with MIT license text
+- Updated all source file headers to MIT license format
+- Added CONTRIBUTING.md, CODE_OF_CONDUCT.md, and SECURITY.md
+- Removed all proprietary development language from documentation
+- Updated memory-bank files to reflect open-source transition
+- Maintained technical decisions and architecture while opening access
+- Created public GitHub repository with clear contribution guidelines

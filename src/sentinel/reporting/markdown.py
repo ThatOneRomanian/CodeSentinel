@@ -3,8 +3,8 @@ Markdown reporting module for CodeSentinel.
 
 Generates human-readable Markdown security scan reports according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 from typing import List

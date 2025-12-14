@@ -3,8 +3,8 @@ Pattern matching utilities for CodeSentinel.
 
 Provides functions for compiling and matching regex patterns for security scanning.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import re

@@ -4,8 +4,8 @@ Output Schema Validation for CodeSentinel Phase 2.
 Provides validation functions for AI-generated output to ensure data quality,
 consistency, and safety before using explanations in the system.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import re

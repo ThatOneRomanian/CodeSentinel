@@ -6,7 +6,7 @@ This file provides a high-level overview of the project and the expected product
 
 ## Project Goal
 
-CodeSentinel is a local-first security & secrets scanner designed for developers and students. The core value proposition is local-first execution with no mandatory cloud dependencies; pricing and licensing for any future public release are undecided and not implied by this document.
+CodeSentinel is a local-first security & secrets scanner designed for developers and students. The core value proposition is local-first execution with no mandatory cloud dependencies, providing transparent and privacy-focused security scanning with MIT open-source licensing.
 
 ## Key Features
 
@@ -103,20 +103,19 @@ CodeSentinel is a local-first security & secrets scanner designed for developers
 * Planned integration with user-provided LLMs for explanations
 * Plugin system for extensible rule sets
 * Configuration-driven behavior
-## Business Model & Licensing (Internal)
+## Open-Source Model & Community Contributions
 
 **Current Status:**
-- Proprietary, private development
-- No implied promise of free/zero-cost licensing
-- Future commercialization options being evaluated
+- MIT open-source licensed (as of December 14, 2025)
+- Public GitHub repository with contribution guidelines
+- Community-driven development model
 
-**Potential Future Models:**
-- Paid CLI tool with premium features
-- Student/educational edition with limitations
-- Enterprise licensing for teams
-- Open core model (basic features open source)
+**Community Focus:**
+- Transparent security scanning with full code visibility
+- Community-contributed rule packs
+- Educational resource for security best practices
+- Collaborative development through public pull requests
+- Feature prioritization based on community needs
 
-No public distribution commitments at this time.
-
-2025-11-29 02:22:00 - Added internal licensing and positioning note for Phase 2 finalization
+2025-12-14 00:30:00 - Transitioned to MIT open-source license with community contribution model
 * Cross-platform compatibility (Windows, macOS, Linux)

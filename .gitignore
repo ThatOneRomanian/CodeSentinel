@@ -63,3 +63,5 @@ logs/
 
 # Project specific
 .python-version
+# Dogfooding results
+dogfood-results/

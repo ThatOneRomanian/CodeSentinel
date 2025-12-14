@@ -3,8 +3,8 @@ CLI interface for CodeSentinel.
 
 Command-line interface for the CodeSentinel security scanner according to the Phase 1 specification.
 
-© 2025 Andrei Antonescu. All rights reserved.
-Proprietary – not licensed for public redistribution.
+Copyright (c) 2025 Andrei Antonescu
+SPDX-License-Identifier: MIT
 """
 
 import argparse
@@ -156,8 +156,8 @@ def print_version() -> None:
     """
     from sentinel import __version__
     print(f"CodeSentinel v{__version__}")
-    print("© 2025 Andrei Antonescu. All rights reserved.")
-    print("Proprietary – not licensed for public redistribution.")
+    print("Copyright (c) 2025 Andrei Antonescu")
+    print("SPDX-License-Identifier: MIT")
 
 
 def enrich_findings_with_ai(findings: List[Finding], provider_name: str) -> List[Finding]:
