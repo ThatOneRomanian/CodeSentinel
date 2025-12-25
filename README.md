@@ -450,6 +450,45 @@ Get help and connect with other users:
 - [GitHub Discussions](https://github.com/ThatOneRomanian/codesentinel/discussions) for questions and community discussions
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/codesentinel) with the `codesentinel` tag
 
+## Documentation
+
+Comprehensive documentation is available in the [docs/](docs/) directory:
+
+### 📖 Quick Links
+- **[Documentation Index](docs/README.md)** - Complete navigation guide to all documentation
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and component overview
+- **[Specifications](docs/specs/)** - Phase specifications and requirements
+  - Phase 1: Core scanning engine
+  - Phase 2: AI integration
+  - Phase 2 Finalization: Completion details
+  - Phase 3: GUI development and API freeze
+- **[API Documentation](docs/api/api-freeze-spec.md)** - Frozen API contract for GUI development
+- **[Design Documents](docs/design/)** - In-depth design analysis and solutions
+  - Phase 2.6 Gap Analysis: Rule blindspots in real-world repos
+  - Phase 2.6 Validation Report: Testing against sample projects
+  - Phase 2.7 Rule Pack Design: Structure-aware scanning specifications
+- **[Implementation Guides](docs/guides/)** - Developer guides and technical notes
+  - Rule Hardening: Advanced deduplication patterns
+  - Dogfooding Experiment Plan: Automated testing strategy
+
+### 📂 Documentation Structure
+```
+docs/
+├── README.md                    # Documentation index (start here!)
+├── ARCHITECTURE.md              # System design overview
+├── specs/                       # Phase specifications
+├── api/                         # API documentation
+├── design/                      # Design documents & analysis
+├── guides/                      # Implementation guides
+└── examples/                    # Sample outputs
+```
+
+### For Contributors
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community standards
+- **[Security Policy](SECURITY.md)** - Vulnerability reporting
+- **[AI Guidelines](.github/copilot-instructions.md)** - For AI-assisted development
+
 ## Support the Project
 
 If you find CodeSentinel useful, consider supporting its development:
