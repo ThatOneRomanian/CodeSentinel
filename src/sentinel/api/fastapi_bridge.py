@@ -25,8 +25,6 @@ from sentinel.api.models import (
     SharedConfig,
 )
 from sentinel.api.scan_service import ScanService
-from sentinel.scanner.engine import Engine
-from sentinel.scanner.walker import FileWalker
 
 logger = logging.getLogger(__name__)
 
