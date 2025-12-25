@@ -38,12 +38,30 @@ DEEPSEEK_API_KEY=your_key codesentinel scan sample-project/ --ai
 - **Provider-Aware Detection**: Intelligent deduplication with provider-specific precedence (Phase 2.5)
 - **Reduced Noise**: 67.8% duplicate reduction through advanced token classification
 
+## Phase 3 GUI Development
+
+Phase 3 GUI is now in development! For early access to the web-based interface:
+
+```bash
+# Quick start (2 minutes)
+./setup-gui.sh
+
+# Terminal 1: Backend API
+python -m sentinel.api.fastapi_bridge
+
+# Terminal 2: Frontend
+cd gui && npm run dev
+
+# Open http://localhost:3000
+```
+
+See [QUICK_START.md](QUICK_START.md) for fast setup and [docs/GUI_DEVELOPMENT.md](docs/GUI_DEVELOPMENT.md) for full documentation.
+
 ## What CodeSentinel Does NOT Do Yet
 
 - **Full SAST**: Not a complete static application security testing tool
 - **Advanced Analysis**: Limited to configured rule packs (expanding in future)
 - **Cloud Service**: No mandatory cloud connectivity or data uploads
-- **GUI Interface**: Currently command-line only (GUI planned for Phase 3)
 
 ## Overview
 
