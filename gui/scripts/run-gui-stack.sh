@@ -43,7 +43,7 @@ fi
 
 if [ ! -d "$PROJECT_ROOT/gui/node_modules" ]; then
     echo -e "${YELLOW}⚠ Frontend dependencies not installed${NC}"
-    echo "  Run: cd gui && npm install"
+    echo "  Run: ./gui/scripts/setup-gui.sh"
     echo ""
 fi
 

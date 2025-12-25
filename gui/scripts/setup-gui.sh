@@ -34,9 +34,7 @@ pip install -q -e ".[dev]" 2>/dev/null || echo "  (CodeSentinel already installe
 
 # Install Node dependencies
 echo "✓ Installing Node.js dependencies..."
-cd gui
-npm install --silent 2>/dev/null || npm install
-cd ..
+(cd ../ && npm install --silent 2>/dev/null || npm install)
 
 echo ""
 echo "═══════════════════════════════════════════════════════════"
@@ -45,10 +43,18 @@ echo "════════════════════════�
 echo ""
 echo "To start development:"
 echo ""
+echo "  First, ensure backend dependencies are installed for GUI:"
+echo "    $ ./gui/scripts/setup-gui.sh"
+echo ""
+echo "  Then, in two terminals:"
+echo "  Terminal 1 (Backend & Frontend):"
+echo "    $ ./gui/scripts/run-gui-stack.sh"
+echo ""
+echo "  Or, if you prefer to run separately:"
 echo "  Terminal 1 (Backend):"
 echo "    $ python -m sentinel.api.fastapi_bridge"
 echo ""
-echo "  Terminal 2 (Frontend):"
+echo "  Terminal 2 (Frontend - from gui directory):"
 echo "    $ cd gui && npm run dev"
 echo ""
 echo "Then open http://localhost:3000 in your browser"
